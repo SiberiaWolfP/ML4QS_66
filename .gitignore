@@ -160,4 +160,5 @@ cython_debug/
 .idea/
 
 # bigfile
-datasets/raw.csv
+datasets/activities/
+datasets/intermediate/
