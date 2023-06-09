@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import argparse
 import pandas as pd
-import matplotlib.ticker as ticker
 
 point_displays = ['+', 'x']  # '*', 'd', 'o', 's', '<', '>']
 line_displays = ['-']  # , '--', ':', '-.']
@@ -20,7 +19,7 @@ if args.f:
 
     df = df.reset_index()
     # df['Time (s)'] = pd.to_datetime(df['Time (s)'], format='%Y-%m-%d %H:%M:%S.%f')
-    df['time_diff'] = df['Timestamp'].diff()
+    df['time_diff'] = df['time'].diff()
     # df['Timestamp'] = pd.to_datetime(df['Time (s)'], unit='s')
 
     threshold = 5 * 10 ** 9  # 5 seconds
@@ -28,13 +27,15 @@ if args.f:
     gaps = df.index[df['time_diff'] > threshold].to_list()
     gaps = [0] + gaps + [len(df)]
 
-    columns_name = ['Acceleration', 'Gyroscope', 'Linear Acceleration', 'Magnetic field', 'label']
-    display = ['line', 'line', 'line', 'line', 'points']
+    columns_name = ['Accelerometer', 'Gravity', 'Gyroscope', 'Location', 'Magnetometer', 'Microphone', 'Orientation', 'label']
+    display = ['line', 'line', 'line', 'line', 'line', 'line', 'line', 'points']
     fig, axs = plt.subplots(len(columns_name), 1, figsize=(15, 12), sharex='all', sharey='none')
 
     for idx, column_name in enumerate(columns_name):
         # Get the columns for each sensor
         columns = [col for col in df.columns if col.startswith(column_name)]
+        if column_name == 'Location':
+            columns = ['Location latitude', 'Location longitude', 'Location altitude', 'Location speed']
 
         # axs[idx].set_prop_cycle(color=['b', 'g', 'r', 'c', 'm', 'y', 'k'])
 
@@ -69,6 +70,6 @@ if args.f:
 
     # Make sure we get a nice figure with only a single x-axis and labels there.
     plt.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
-    plt.xlabel('Time')
+    plt.xlabel('index')
     fig.tight_layout()
     plt.show()
