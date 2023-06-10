@@ -25,6 +25,7 @@ for csv_file in csv_files:
     dataset = pd.read_csv(csv_file)
     dataset = ImputationMissingValues().interpolate_missing_values(dataset, interpolat_cols)
     dataset = ImputationMissingValues().impute_mean(dataset, mean_cols)
+    dataset = dataset.dropna() # 比如最开始的缺失值
     dataset.to_csv(result_folder + os.path.basename(csv_file))
 
 
