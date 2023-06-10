@@ -5,6 +5,10 @@ class ImputationMissingValues:
         dataset[cols] = dataset[cols].fillna(dataset[cols].mean())
         return dataset
 
+    def interpolate_linear(self, dataset, cols):
+        dataset[cols] = dataset[cols].interpolate(method='linear', limit_direction='forward', axis=0)
+        return dataset
+
     def interpolate_missing_values(self, dataset, cols):
         missing_rows = dataset[cols].isnull().any(axis=1)
 
@@ -28,7 +32,7 @@ class ImputationMissingValues:
                 data_range = data_range.fillna(method='bfill')
             else:
                 # 否则，使用线性插值填充缺失值
-                data_range = data_range.interpolate()
+                data_range = data_range.interpolate(limit=100)
 
             dataset.loc[start:end + 1, cols] = data_range
 
