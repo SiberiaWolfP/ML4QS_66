@@ -160,6 +160,7 @@ cython_debug/
 .idea/
 
 # bigfile
-datasets
+datasets/activities/
+datasets/intermediate/
 # Ignore .mp4 files
 *.mp4
