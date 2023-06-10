@@ -56,9 +56,11 @@ if args.f:
             # Display point, or as a line
             line = None
             if display[idx] == 'points':
-                line, = axs[idx].plot(df.index[mask], df[column][mask], point_displays[j % len(point_displays)], linewidth=0.5)
+                # line, = axs[idx].plot(df.index[mask], df[column][mask], point_displays[j % len(point_displays)], linewidth=0.5)
+                line, = axs[idx].plot(df.index.values[mask], df[column].values[mask], point_displays[j % len(point_displays)], linewidth=0.5)
             else:
-                line, = axs[idx].plot(df.index[mask], df[column][mask], line_displays[j % len(line_displays)], linewidth=0.5)
+                # line, = axs[idx].plot(df.index[mask], df[column][mask], line_displays[j % len(line_displays)], linewidth=0.5)
+                line, = axs[idx].plot(df.index.values[mask], df[column].values[mask], line_displays[j % len(line_displays)], linewidth=0.5)
             lines.append(line)
 
         axs[idx].tick_params(axis='y', labelsize=10)
