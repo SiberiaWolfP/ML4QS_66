@@ -162,3 +162,5 @@ cython_debug/
 # bigfile
 datasets/activities/
 datasets/intermediate/
+# Ignore .mp4 files
+*.mp4
