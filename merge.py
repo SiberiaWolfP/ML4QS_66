@@ -10,7 +10,7 @@ root_folder = 'datasets/'  # gets current directory
 activity_folder = 'datasets/activities'
 intermediate_folder = 'datasets/intermediate'
 
-sensors = ['Accelerometer', 'Gravity', 'Gyroscope', 'Location', 'Magnetometer', 'Microphone', 'Orientation']
+sensors = ['Accelerometer', 'Gravity', 'Gyroscope', 'Magnetometer', 'Microphone', 'Orientation']
 
 
 def audio_to_df(path, start_time):
@@ -104,14 +104,39 @@ def merge_all():
     all_df.to_csv(intermediate_folder + '/raw.csv', index=False)
 
 
+def resample():
+    granularity = ['100ms', '1S', '1min']
+    df = pd.read_csv(intermediate_folder + '/raw.csv')
+    df['time'] = pd.to_datetime(df['time'], unit='ns')
+    df.set_index('time', inplace=True)
+
+    gaps = df.index.to_series().diff() > pd.Timedelta('1S')
+
+    df['group'] = gaps.cumsum()
+
+    for g in granularity:
+        resampled_dfs = []
+        for _, group_df in df.groupby('group'):
+            resampled_df = group_df.resample(g).mean()
+            resampled_df.drop(columns=['group'], inplace=True, errors='ignore')
+            resampled_dfs.append(resampled_df)
+        resampled_df = pd.concat(resampled_dfs)
+        resampled_df.reset_index(inplace=True)
+        resampled_df['time'] = resampled_df['time'].view('int64')
+        resampled_df.to_csv(intermediate_folder + '/raw_' + g + '.csv')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Add the parameters
     parser.add_argument('-a', action='store_true', required=False, help="Merge all activities individually")
     parser.add_argument('-m', action='store_true', required=False, help='Merge all activities into raw.csv')
+    parser.add_argument('-r', action='store_true', required=False, help='Resample raw.csv')
     args = parser.parse_args()
 
     if args.a:
         merge_activity()
     if args.m:
         merge_all()
+    if args.r:
+        resample()

@@ -27,8 +27,8 @@ if args.f:
     gaps = df.index[df['time_diff'] > threshold].to_list()
     gaps = [0] + gaps + [len(df)]
 
-    columns_name = ['Accelerometer', 'Gravity', 'Gyroscope', 'Location', 'Magnetometer', 'Microphone', 'Orientation', 'label']
-    display = ['line', 'line', 'line', 'line', 'line', 'line', 'line', 'points']
+    columns_name = ['Accelerometer', 'Gravity', 'Gyroscope', 'Magnetometer', 'Microphone', 'Orientation', 'label']
+    display = ['line', 'line', 'line', 'line', 'line', 'line', 'points']
     fig, axs = plt.subplots(len(columns_name), 1, figsize=(15, 12), sharex='all', sharey='none')
 
     for idx, column_name in enumerate(columns_name):
