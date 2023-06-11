@@ -4,7 +4,7 @@ from src.missing_value.ImputationMissingValues import ImputationMissingValues
 import glob
 import os
 
-activity_folder = '../../datasets/activities/'
+data_folder = '../../datasets/activities/after_removing_outliers'
 result_folder = '../../datasets/activities/after_impute_missing_values/'
 
 interpolat_cols = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
@@ -18,13 +18,12 @@ interpolat_cols = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
 
-csv_files = glob.glob(activity_folder + '/*.csv')
+csv_files = glob.glob(data_folder + '/*.csv')
 
 for csv_file in csv_files:
     dataset = pd.read_csv(csv_file)
     # locations related columns
     mean_cols = dataset.columns[dataset.columns.str.contains('Location')]
-    orig_dataset = pd.read_csv(csv_file)
 
     dataset = ImputationMissingValues().interpolate_linear(dataset, interpolat_cols)
     dataset = ImputationMissingValues().impute_mean(dataset, mean_cols)
