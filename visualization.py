@@ -13,11 +13,35 @@ parser.add_argument('-f', type=str, required=True, help="Name of the csv file to
 
 args = parser.parse_args()
 
+
+def print_statistics(df):
+    # .describe() gives number of values, mean, standard deviation, min and max for each column in one table.
+    # print(df.describe().round(3).to_string())
+
+    print('\ncolumn \t\t\t % missing \t\t\t mean \t\t\t standard deviation \t\t\t min \t\t\t max')
+    dataset_length = len(df.index)
+    for col in df.columns:
+        print('\t\t\t'.join([f'{col}',
+                           f'{(dataset_length - df[col].count()) / dataset_length * 100:3.1f}%',
+                           f'{df[col].mean():6.3f}',
+                           f'{df[col].std():6.3f}',
+                           f'{df[col].min():6.3f}',
+                           f'{df[col].max():6.3f}']))
+
+    print('\n')
+    print('Label percentages:')
+    for col in df.columns:
+        if col[0:5] == 'label':
+            print(col, ': ', df[col].sum() / len(df.index) * 100, '%')
+
+
 if args.f:
     # Plot all data
     df = pd.read_csv(args.f)
-
     df = df.reset_index()
+
+    print_statistics(df)
+
     # df['Time (s)'] = pd.to_datetime(df['Time (s)'], format='%Y-%m-%d %H:%M:%S.%f')
     df['time_diff'] = df['time'].diff()
     # df['Timestamp'] = pd.to_datetime(df['Time (s)'], unit='s')
@@ -57,10 +81,12 @@ if args.f:
             line = None
             if display[idx] == 'points':
                 # line, = axs[idx].plot(df.index[mask], df[column][mask], point_displays[j % len(point_displays)], linewidth=0.5)
-                line, = axs[idx].plot(df.index.values[mask], df[column].values[mask], point_displays[j % len(point_displays)], linewidth=0.5)
+                line, = axs[idx].plot(df.index.values[mask], df[column].values[mask],
+                                      point_displays[j % len(point_displays)], linewidth=0.5)
             else:
                 # line, = axs[idx].plot(df.index[mask], df[column][mask], line_displays[j % len(line_displays)], linewidth=0.5)
-                line, = axs[idx].plot(df.index.values[mask], df[column].values[mask], line_displays[j % len(line_displays)], linewidth=0.5)
+                line, = axs[idx].plot(df.index.values[mask], df[column].values[mask],
+                                      line_displays[j % len(line_displays)], linewidth=0.5)
             lines.append(line)
 
         axs[idx].tick_params(axis='y', labelsize=10)

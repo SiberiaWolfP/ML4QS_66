@@ -123,7 +123,7 @@ def resample():
         resampled_df = pd.concat(resampled_dfs)
         resampled_df.reset_index(inplace=True)
         resampled_df['time'] = resampled_df['time'].view('int64')
-        resampled_df.to_csv(intermediate_folder + '/raw_' + g + '.csv')
+        resampled_df.to_csv(intermediate_folder + '/raw_' + g + '.csv', index=False)
 
 
 if __name__ == '__main__':
