@@ -1,13 +1,6 @@
 import pandas as pd
-import numpy as np
-import re
-import copy
-from datetime import datetime, timedelta
-import matplotlib.pyplot as plot
-import matplotlib.dates as md
 import os
 import glob
-from pytz import timezone
 
 
 class CreateDataset:
@@ -61,6 +54,7 @@ class CreateDataset:
         master_df.sort_values('time', inplace=True)
         # Add label column
         master_df['label ' + os.path.basename(activity)] = 1
+        master_df['label ' + os.path.basename(activity)] = master_df['label ' + os.path.basename(activity)].astype(int)
         # Save the merged dataframe to a new csv file
         # master_df.to_csv(self.activities_dir + activity + '.csv', index=False)
         self.activities_df.append(master_df)
@@ -99,7 +93,8 @@ class CreateDataset:
         resampled_df = pd.concat(resampled_dfs)
         resampled_df.reset_index(inplace=True)
         resampled_df['time'] = resampled_df['time'].view('int64')
+        label_cols = [col for col in resampled_df.columns if 'label' in col]
+        resampled_df[label_cols] = resampled_df[label_cols].astype('Int64')
         # resampled_df.to_csv(self.intermediate_dir + '/raw_' + g + '.csv', index=False)
         self.data_table.reset_index(inplace=True)
         return resampled_df
-
