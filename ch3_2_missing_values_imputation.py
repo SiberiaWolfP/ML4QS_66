@@ -48,7 +48,7 @@ new_dataframe = pd.DataFrame()
 for col in labeled_cols:
     subset = dataset[dataset[col] == 1].copy()\
         .reset_index(drop=True)
-
+    print(len(subset))
     subset = impute_missing(dataset=subset)
     new_dataframe = pd.concat([new_dataframe, subset], ignore_index=True)
 

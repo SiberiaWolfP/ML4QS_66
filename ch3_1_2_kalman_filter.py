@@ -5,7 +5,7 @@ import os
 
 # slow!
 
-raw_file = 'datasets/intermediate/raw.csv'  # gets current directory
+raw_file = 'datasets/intermediate/raw_100ms.csv'  # gets current directory
 data_folder = 'datasets/intermediate/after_impute_missing_values/'
 result_folder = 'datasets/intermediate/after_filter/'
 result_file_name = 'ch3_1_2_after_kalman_filter.csv'
@@ -36,7 +36,7 @@ for col in labeled_cols:
     subset = dataset[dataset[col] == 1].copy()\
         .reset_index(drop=True)
 
-    subset = KalmanFilters().apply_kalman_filter(subset, filter_columns)
+    subset = KalmanFilters().apply_kalman_filter(data_table=subset, cols=filter_columns)
     new_dataframe = pd.concat([new_dataframe, subset], ignore_index=True)
 
 new_dataframe.sort_values(by='time')
