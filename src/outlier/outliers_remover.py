@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from OutlierDetection import DistributionBasedOutlierDetection
 from OutlierDetection import DistanceBasedOutlierDetection
@@ -27,9 +28,9 @@ def main(mode):
     dataset = removing_outliers(mode, dataset=dataset)
     dataset.to_csv(result_folder + file_name)
 
-    outlier_cols = [col for col in dataset.columns if 'outlier' in col]
-    dataset = dataset[~dataset[outlier_cols].any(axis=1)]
-    dataset.to_csv(result_folder + result_name)
+    # outlier_cols = [col for col in dataset.columns if 'outlier' in col]
+    # dataset = dataset[~dataset[outlier_cols].any(axis=1)]
+    # dataset.to_csv(result_folder + result_name)
 
 
 def removing_outliers(mode, dataset):
@@ -69,13 +70,15 @@ def removing_outliers(mode, dataset):
                 print('Not enough memory available for lof...')
                 print('Skipping.')
 
-    # elif mode == 'final':
-    #     for col in [c for c in dataset.columns if not 'label' in c]:
-    #         print(f'Measurement is now: {col}')
-    #         dataset = DistributionBasedOutlierDetection.chauvenet(dataset, col, 2)
-    #         dataset.loc[dataset[f'{col}_outlier'] == True, col] = np.nan
-    #         del dataset[col + '_outlier']
+    elif mode == 'final':
+        # for col in [c for c in dataset.columns if not 'label' in c]:
+        for col in outlier_columns:
+            print(f'Measurement is now: {col}')
+            dataset = DistributionBasedOutlierDetection.chauvenet(dataset, col, 2)
+            # dataset.loc[dataset[f'{col} outlier'] == True, col] = np.nan
+            # del dataset[col + '_outlier']
 
+    dataset.loc[dataset[f'{col} outlier'] == True, col] = np.nan
     print(dataset.columns)
     # return dataset
 
