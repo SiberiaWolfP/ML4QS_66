@@ -1,14 +1,12 @@
-import cudf
 import torch
-
+import os
+import glob
 GPU = False
 if torch.cuda.is_available():
     GPU = True
     import cudf as pd
 else:
     import pandas as pd
-import os
-import glob
 
 
 class CreateDataset:
