@@ -9,29 +9,34 @@ import glob
 
 activity_folder = 'datasets/activities/'
 result_folder = 'datasets/intermediate/after_removing_outliers/'
+intermediate_folder = 'datasets/intermediate'
 raw_file = 'datasets/intermediate/raw_100ms.csv'
-file_name = 'raw_100ms_outliers.csv'
-result_name = 'raw_100ms_no_outliers.csv'
+result_file_name = 'ch3_1_after_outliers_detection.csv'
+
+# file_name = 'raw_100ms_outliers.csv'
+# result_name = 'raw_100ms_no_outliers.csv'
+
+
 
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
 
 def main(mode):
-    csv_files = glob.glob(activity_folder + '/*.csv')
-
-    for csv_file in csv_files:
-        dataset = pd.read_csv(csv_file)
-        dataset = removing_outliers(mode, dataset=dataset)
-
-        dataset.to_csv(result_folder + os.path.basename(csv_file))
-
     dataset = pd.read_csv(raw_file)
-    dataset = removing_outliers(mode, dataset=dataset)
-    dataset.to_csv(result_folder + file_name)
+    labeled_cols = dataset.columns[dataset.columns.str.contains('label ')]
+    print(dataset)
+    new_dataframe = pd.DataFrame()
+    for col in labeled_cols:
+        subset = dataset[dataset[col] == 1].copy()\
+            .reset_index(drop=True)
 
-    # outlier_cols = [col for col in dataset.columns if 'outlier' in col]
-    # dataset = dataset[~dataset[outlier_cols].any(axis=1)]
-    # dataset.to_csv(result_folder + result_name)
+        subset = removing_outliers(mode, dataset=subset)
+        new_dataframe = pd.concat([new_dataframe, subset], ignore_index=True)
+
+    new_dataframe.sort_values(by='time')
+    new_dataframe.reset_index(drop=True)
+    print(new_dataframe)
+    new_dataframe.to_csv(result_folder + result_file_name)
 
 
 def removing_outliers(mode, dataset):
@@ -80,7 +85,7 @@ def removing_outliers(mode, dataset):
             # del dataset[col + '_outlier']
 
     dataset.loc[dataset[f'{col} outlier'] == True, col] = np.nan
-    print(dataset.columns)
+    # print(dataset.columns)
     return dataset
 
 

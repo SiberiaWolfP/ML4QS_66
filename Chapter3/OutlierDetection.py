@@ -25,7 +25,7 @@ class DistributionBasedOutlierDetection:
     # the same name extended with '_outlier' that expresses the result per data point.
     def chauvenet(self, data_table, col, C):
         # Taken partly from: https://www.astro.rug.nl/software/kapteyn/
-        print(col)
+        # print(col)
         # Computer the mean and standard deviation.
         mean = data_table[col].mean()
         std = data_table[col].std()
