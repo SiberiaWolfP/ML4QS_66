@@ -95,14 +95,14 @@ class CreateDataset:
         for _, group_df in self.data_table.groupby('group'):
             if GPU is True:
                 group_df = group_df.to_pandas()
-                resampled_df = cudf.from_pandas(group_df.resample(on='time', rule=granularity).mean())
+                resampled_df = pd.from_pandas(group_df.resample(on='time', rule=granularity).mean())
             else:
                 resampled_df = group_df.resample(on='time', rule=granularity).mean()
                 resampled_df.drop(columns=['group'], inplace=True, errors='ignore')
             resampled_dfs.append(resampled_df)
         resampled_df = pd.concat(resampled_dfs)
         resampled_df.reset_index(inplace=True)
-        resampled_df['time'] = pd.to_datetime(self.data_table['time'], unit='ns').astype('Int64')
+        resampled_df['time'] = pd.to_datetime(self.data_table['time'], unit='ns').astype('int64')
         label_cols = [col for col in resampled_df.columns if 'label' in col]
         resampled_df[label_cols] = resampled_df[label_cols].astype('Int64')
         # resampled_df.to_csv(self.intermediate_dir + '/raw_' + g + '.csv', index=False)
