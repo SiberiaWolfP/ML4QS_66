@@ -1,4 +1,12 @@
-import pandas as pd
+import cudf
+import torch
+
+GPU = False
+if torch.cuda.is_available():
+    GPU = True
+    import cudf as pd
+else:
+    import pandas as pd
 import os
 import glob
 
@@ -51,7 +59,7 @@ class CreateDataset:
             master_df = pd.concat([master_df, merged_df], ignore_index=True)
 
         # Sort the merged dataframe by time
-        master_df.sort_values('time', inplace=True)
+        master_df = master_df.sort_values('time')
         # Add label column
         master_df['label ' + os.path.basename(activity)] = 1
         master_df['label ' + os.path.basename(activity)] = master_df['label ' + os.path.basename(activity)].astype(int)
@@ -71,7 +79,7 @@ class CreateDataset:
                 self.data_table = pd.concat([self.data_table, df], ignore_index=True)
         label_cols = [col for col in self.data_table.columns if 'label' in col]
         self.data_table[label_cols] = self.data_table[label_cols].fillna(0)
-        self.data_table.sort_values('time', inplace=True)
+        self.data_table = self.data_table.sort_values('time')
         # self.data_table.to_csv(self.intermediate_dir + '/raw.csv', index=False)
         return self.data_table
 
@@ -79,22 +87,26 @@ class CreateDataset:
         if self.data_table is None:
             self.data_table = pd.read_csv(self.intermediate_dir / '/raw.csv')
         self.data_table['time'] = pd.to_datetime(self.data_table['time'], unit='ns')
-        self.data_table.set_index('time', inplace=True)
+        # self.data_table.set_index('time', inplace=True)
 
-        gaps = self.data_table.index.to_series().diff() > pd.Timedelta('1S')
+        gaps = self.data_table['time'].diff().dt.seconds > 1
 
         self.data_table['group'] = gaps.cumsum()
 
         resampled_dfs = []
         for _, group_df in self.data_table.groupby('group'):
-            resampled_df = group_df.resample(granularity).mean()
-            resampled_df.drop(columns=['group'], inplace=True, errors='ignore')
+            if GPU is True:
+                group_df = group_df.to_pandas()
+                resampled_df = cudf.from_pandas(group_df.resample(on='time', rule=granularity).mean())
+            else:
+                resampled_df = group_df.resample(on='time', rule=granularity).mean()
+                resampled_df.drop(columns=['group'], inplace=True, errors='ignore')
             resampled_dfs.append(resampled_df)
         resampled_df = pd.concat(resampled_dfs)
         resampled_df.reset_index(inplace=True)
-        resampled_df['time'] = resampled_df['time'].view('int64')
+        resampled_df['time'] = pd.to_datetime(self.data_table['time'], unit='ns').astype('Int64')
         label_cols = [col for col in resampled_df.columns if 'label' in col]
         resampled_df[label_cols] = resampled_df[label_cols].astype('Int64')
         # resampled_df.to_csv(self.intermediate_dir + '/raw_' + g + '.csv', index=False)
-        self.data_table.reset_index(inplace=True)
+        # self.data_table.reset_index(inplace=True)
         return resampled_df
