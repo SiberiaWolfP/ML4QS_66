@@ -1,15 +1,15 @@
 import numpy as np
 import pandas as pd
-from OutlierDetection import DistributionBasedOutlierDetection
-from OutlierDetection import DistanceBasedOutlierDetection
+from Chapter3.OutlierDetection import DistributionBasedOutlierDetection
+from Chapter3.OutlierDetection import DistanceBasedOutlierDetection
 import argparse
 import os
 import glob
 
 
-activity_folder = ('../../datasets/activities/')
-result_folder = ('../../datasets/activities/after_removing_outliers/')
-raw_file = '../../datasets/intermediate/raw_100ms.csv'
+activity_folder = 'datasets/activities/'
+result_folder = 'datasets/intermediate/after_removing_outliers/'
+raw_file = 'datasets/intermediate/raw_100ms.csv'
 file_name = 'raw_100ms_outliers.csv'
 result_name = 'raw_100ms_no_outliers.csv'
 
@@ -22,6 +22,7 @@ def main(mode):
     for csv_file in csv_files:
         dataset = pd.read_csv(csv_file)
         dataset = removing_outliers(mode, dataset=dataset)
+
         dataset.to_csv(result_folder + os.path.basename(csv_file))
 
     dataset = pd.read_csv(raw_file)
@@ -80,7 +81,7 @@ def removing_outliers(mode, dataset):
 
     dataset.loc[dataset[f'{col} outlier'] == True, col] = np.nan
     print(dataset.columns)
-    # return dataset
+    return dataset
 
 
 if __name__ == '__main__':

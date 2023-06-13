@@ -1,13 +1,13 @@
-from kalman_filters import KalmanFilters
+from Chapter3.kalman_filters import KalmanFilters
 import pandas as pd
 import glob
 import os
 
 # slow!
 
-raw_file = '../../datasets/intermediate/raw.csv'  # gets current directory
-data_folder = '../../datasets/activities/after_impute_missing_values/'
-result_folder = '../../datasets/activities/after_filter/'
+raw_file = 'datasets/intermediate/raw.csv'  # gets current directory
+data_folder = 'datasets/intermediate/after_impute_missing_values/'
+result_folder = 'datasets/intermediate/after_filter/'
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
 

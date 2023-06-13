@@ -6,6 +6,15 @@ import numpy as np
 
 # Not a class, just a bunch of useful functions.
 
+# haven't finished yet
+def label_groups_operation(dataset, cols, func):
+    cols = dataset.columns[dataset.columns.str.contains('label ')]
+    for col in cols:
+        dataset[dataset[col]==1] = func(dataset[dataset[col]==1])
+        print(col)
+    # dataset = func(dataset, cols)
+    return dataset
+
 def get_chapter(module_path):
     return re.search('_ch._', 'crowdsignals_ch3_outliers.py').group(0).strip('_')
 

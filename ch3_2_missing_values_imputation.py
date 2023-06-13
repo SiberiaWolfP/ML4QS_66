@@ -1,11 +1,10 @@
-import numpy as np
 import pandas as pd
-from src.missing_value.ImputationMissingValues import ImputationMissingValues
+from Chapter3.ImputationMissingValues import ImputationMissingValues
 import glob
 import os
 
-data_folder = '../../datasets/activities/after_removing_outliers'
-result_folder = '../../datasets/activities/after_impute_missing_values/'
+data_folder = 'datasets/intermediate/after_removing_outliers/'
+result_folder = 'datasets/intermediate/after_impute_missing_values/'
 
 interpolat_cols = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
                    'Gravity z', 'Gravity y', 'Gravity x',

@@ -19,7 +19,7 @@ def outlier_divider(dataset, col):
     non_outliers, outliers = split_dataset_by_outliers(dataset, col+' outlier')
     return non_outliers, outliers
 
-dataset = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/activities/after_impute_missing_values/raw_100ms.csv')
+dataset = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/intermediate/after_impute_missing_values/raw_100ms.csv')
 outlier_columns = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x']
 # for col in outlier_columns:
 #     non_outliers, outliers = outlier_divider(dataset, col)

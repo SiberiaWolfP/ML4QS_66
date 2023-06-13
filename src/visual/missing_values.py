@@ -4,8 +4,8 @@ import matplotlib.dates as md
 import matplotlib as mpl
 import seaborn as sns
 
-dataset1 = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/activities/after_removing_outliers/walking.csv').iloc[111:1001]
-dataset2 = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/activities/after_impute_missing_values/walking.csv').iloc[110:1001]
+dataset1 = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/intermediate/after_removing_outliers/walking.csv').iloc[111:1001]
+dataset2 = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/intermediate/after_impute_missing_values/walking.csv').iloc[110:1001]
 print((dataset1))
 print((dataset2))
 cols = ['Orientation qz']

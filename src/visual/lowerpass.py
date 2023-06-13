@@ -4,7 +4,7 @@ import matplotlib.dates as md
 import matplotlib as mpl
 import seaborn as sns
 
-dataset = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/activities/after_transform/result.csv')
+dataset = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/intermediate/after_transform/result.csv')
 plt.figure(figsize=(14, 5))
 cols = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x','Accelerometer z kalman', 'Accelerometer y kalman', 'Accelerometer x kalman']
 

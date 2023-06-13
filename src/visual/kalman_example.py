@@ -4,7 +4,7 @@ import matplotlib.dates as md
 import matplotlib as mpl
 import seaborn as sns
 
-dataset = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/activities/after_filter/raw_100ms.csv')
+dataset = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/intermediate/after_filter/raw_100ms.csv')
 plt.figure(figsize=(14, 5))
 cols = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x','Accelerometer z kalman', 'Accelerometer y kalman', 'Accelerometer x kalman']
 
@@ -28,8 +28,8 @@ plt.show()
 # import matplotlib as mpl
 # import seaborn as sns
 #
-# dataset1 = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/activities/after_impute_missing_values/running.csv')
-# dataset2 = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/activities/after_filter/running.csv')
+# dataset1 = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/intermediate/after_impute_missing_values/running.csv')
+# dataset2 = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/intermediate/after_filter/running.csv')
 # print((dataset1))
 # print((dataset2))
 # cols = ['Orientation qz']

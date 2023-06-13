@@ -1,20 +1,16 @@
-import sys
 import copy
 from pathlib import Path
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import argparse
 
 import DataTransformation
 
 # Set up the file names and locations.
-from src.missing_value.ImputationMissingValues import ImputationMissingValues
 
 
-activity_folder = ('../../datasets/activities/after_filter/')
-result_folder = ('../../datasets/activities/after_transform/')
-file_name = '/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/activities/after_filter/raw_100ms.csv'
+activity_folder = ('../../datasets/intermediate/after_filter/')
+result_folder = ('../../datasets/intermediate/after_transform/')
+file_name = '/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/intermediate/after_filter/raw_100ms.csv'
 
 def main():
 
@@ -46,7 +42,7 @@ def main():
         new_dataset = LowPass.low_pass_filter(copy.deepcopy(
             dataset), 'Orientation qz', fs, cutoff, order=10)
 
-        new_dataset.to_csv('../../datasets/activities/after_transform/result.csv')
+        new_dataset.to_csv('../../datasets/intermediate/after_transform/result.csv')
 
     elif FLAGS.mode == 'PCA':
 
