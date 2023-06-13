@@ -8,7 +8,7 @@ dataset1 = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/int
 dataset2 = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/intermediate/after_impute_missing_values/walking.csv').iloc[110:1001]
 print((dataset1))
 print((dataset2))
-cols = ['Orientation qz']
+cols = ['Microphone dBFS'] # high percentage of missing values
 
 dataset = pd.DataFrame()
 dataset1 = dataset1.head(1000)[cols]
