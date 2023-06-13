@@ -32,7 +32,7 @@ class ImputationMissingValues:
                 data_range = data_range.fillna(method='bfill')
             else:
                 # 否则，使用线性插值填充缺失值
-                data_range = data_range.interpolate(limit=100)
+                data_range = data_range.interpolate(limit=1000)
 
             dataset.loc[start:end + 1, cols] = data_range
 

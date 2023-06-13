@@ -20,14 +20,19 @@ if not os.path.exists(result_folder):
 
 csv_files = glob.glob(data_folder + '/*.csv')
 
-for csv_file in csv_files:
-    dataset = pd.read_csv(csv_file)
-    # locations related columns
+def impute_missing(dataset):
     mean_cols = dataset.columns[dataset.columns.str.contains('Location')]
 
     dataset = ImputationMissingValues().interpolate_linear(dataset, interpolat_cols)
     dataset = ImputationMissingValues().impute_mean(dataset, mean_cols)
     dataset = dataset.dropna() # 比如最开始的缺失值
+    return dataset
+
+
+for csv_file in csv_files:
+    dataset = pd.read_csv(csv_file)
+    # locations related columns
+    dataset = impute_missing(dataset)
     dataset.to_csv(result_folder + os.path.basename(csv_file))
     print(os.path.basename(csv_file))
     # break

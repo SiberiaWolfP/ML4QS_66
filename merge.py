@@ -6,9 +6,11 @@ from moviepy.editor import AudioFileClip
 import numpy as np
 from pytz import timezone
 
+from src.missing_value.ImputationMissingValues import ImputationMissingValues
+
 root_folder = 'datasets/'  # gets current directory
-activity_folder = 'datasets/activities'
-intermediate_folder = 'datasets/intermediate'
+activity_folder = 'datasets/activities/after_impute_missing_values/'
+intermediate_folder = 'datasets/activities/after_impute_missing_values/'
 
 sensors = ['Accelerometer', 'Gravity', 'Gyroscope', 'Magnetometer', 'Microphone', 'Orientation']
 
