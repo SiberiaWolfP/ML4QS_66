@@ -16,15 +16,12 @@ result_file_name = 'ch3_1_after_outliers_detection.csv'
 # file_name = 'raw_100ms_outliers.csv'
 # result_name = 'raw_100ms_no_outliers.csv'
 
-
-
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
 
 def main(mode):
     dataset = pd.read_csv(raw_file)
     labeled_cols = dataset.columns[dataset.columns.str.contains('label ')]
-    print(dataset)
     new_dataframe = pd.DataFrame()
     for col in labeled_cols:
         subset = dataset[dataset[col] == 1].copy()\
@@ -35,7 +32,6 @@ def main(mode):
 
     new_dataframe.sort_values(by='time')
     new_dataframe.reset_index(drop=True)
-    print(new_dataframe)
     new_dataframe.to_csv(result_folder + result_file_name)
 
 
