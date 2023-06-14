@@ -7,6 +7,11 @@ from util.common import GPU
 
 # Not a class, just a bunch of useful functions.
 
+def del_cols(dataset, cols):
+    for col in cols:
+        dataset = dataset.drop(col, axis=1)
+    return dataset
+
 def get_chapter(module_path):
     return re.search('_ch._', 'ch3_outliers.py').group(0).strip('_')
 

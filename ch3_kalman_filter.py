@@ -4,6 +4,7 @@ import os
 import pandas as pd
 
 # slow!
+from util.util import del_cols
 
 raw_file = 'datasets/intermediate/raw_100ms.csv'  # gets current directory
 data_folder = 'datasets/intermediate/after_impute_missing_values/'
@@ -43,6 +44,9 @@ for col in labeled_cols:
 
 new_dataframe.sort_values(by='time')
 new_dataframe.reset_index(drop=True)
+
+kalman_check_cols = new_dataframe.columns[new_dataframe.columns.str.contains(' kalman')]
+new_dataframe = del_cols(new_dataframe, kalman_check_cols)
 
 new_dataframe.to_csv(result_folder + result_file_name)
 print('end')

@@ -3,6 +3,7 @@ import pandas as pd
 from Chapter3.OutlierDetection import DistributionBasedOutlierDetection
 from Chapter3.OutlierDetection import DistanceBasedOutlierDetection
 import argparse
+from util.util import del_cols
 import os
 import glob
 
@@ -32,6 +33,10 @@ def main(mode):
 
     new_dataframe.sort_values(by='time')
     new_dataframe.reset_index(drop=True)
+    
+    outlier_check_cols = new_dataframe.columns[new_dataframe.columns.str.contains(' outlier')]
+    new_dataframe = del_cols(new_dataframe, outlier_check_cols)
+
     new_dataframe.to_csv(result_folder + result_file_name, index=False)
 
 
