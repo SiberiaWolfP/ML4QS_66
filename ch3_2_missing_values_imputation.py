@@ -29,7 +29,7 @@ def impute_missing(dataset):
 
     dataset = ImputationMissingValues().interpolate_linear(dataset, interpolate_cols)
     # dataset = ImputationMissingValues().impute_mean(dataset, mean_cols)
-    # dataset = dataset.dropna()  # 比如最开始的缺失值
+    dataset = dataset.dropna()  # 比如最开始的缺失值
     return dataset
 
 

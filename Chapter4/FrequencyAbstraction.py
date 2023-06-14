@@ -17,7 +17,7 @@ class FourierTransformation:
     def find_fft_transformation(self, data):
         # Create the transformation, this includes the amplitudes of both the real
         # and imaginary part.
-        print(data.shape)
+        # print(data.shape)
         transformation = np.fft.rfft(data, len(data))
         # real
         real_ampl = transformation.real
