@@ -16,10 +16,12 @@ if not os.path.exists(result_folder):
 filter_columns = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
                    'Gravity z', 'Gravity y', 'Gravity x',
                    'Gyroscope z', 'Gyroscope y', 'Gyroscope x',
-                   'Magnetometer z', 'Magnetometer y', 'Magnetometer x', 'Microphone dBFS',
-                   'Orientation yaw', 'Orientation qx', 'Orientation qz',
-                   'Orientation roll', 'Orientation qw', 'Orientation qy'
-                  ]
+                   'Magnetometer z', 'Magnetometer y', 'Magnetometer x',
+                   'Microphone dBFS',
+                   'Orientation qz', 'Orientation qy', 'Orientation qx',
+                   'Orientation qw',
+                   # 'Orientation roll', 'Orientation pitch', 'Orientation yaw'
+                   ]
 
 # csv_files = glob.glob(data_folder + '/*.csv')
 
