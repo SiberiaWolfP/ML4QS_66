@@ -17,7 +17,9 @@ interpolat_cols = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
                    'Magnetometer z', 'Magnetometer y', 'Magnetometer x',
                    'Microphone dBFS',
                    'Orientation qz', 'Orientation qy', 'Orientation qx',
-                   'Orientation qw', 'Orientation roll', 'Orientation pitch', 'Orientation yaw']
+                   'Orientation qw',
+                   # 'Orientation roll', 'Orientation pitch', 'Orientation yaw'
+                   ]
 
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
