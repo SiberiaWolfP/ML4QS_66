@@ -6,7 +6,6 @@ import argparse
 import os
 import glob
 
-
 activity_folder = 'datasets/activities/'
 result_folder = 'datasets/intermediate/after_removing_outliers/'
 intermediate_folder = 'datasets/intermediate'
@@ -19,12 +18,13 @@ result_file_name = 'ch3_1_after_outliers_detection.csv'
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
 
+
 def main(mode):
     dataset = pd.read_csv(raw_file)
     labeled_cols = dataset.columns[dataset.columns.str.contains('label ')]
     new_dataframe = pd.DataFrame()
     for col in labeled_cols:
-        subset = dataset[dataset[col] == 1].copy()\
+        subset = dataset[dataset[col] == 1].copy() \
             .reset_index(drop=True)
 
         subset = removing_outliers(mode, dataset=subset)
@@ -36,17 +36,15 @@ def main(mode):
 
 
 def removing_outliers(mode, dataset):
-
     outlier_columns = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
-                   'Gravity z', 'Gravity y', 'Gravity x',
-                   'Gyroscope z', 'Gyroscope y', 'Gyroscope x',
-                   'Magnetometer z', 'Magnetometer y', 'Magnetometer x',
-                   'Microphone dBFS',
-                   'Orientation qz', 'Orientation qy', 'Orientation qx',
-                   'Orientation qw',
-                   # 'Orientation roll', 'Orientation pitch', 'Orientation yaw'
-                   ]
-
+                       'Gravity z', 'Gravity y', 'Gravity x',
+                       'Gyroscope z', 'Gyroscope y', 'Gyroscope x',
+                       'Magnetometer z', 'Magnetometer y', 'Magnetometer x',
+                       'Microphone dBFS',
+                       'Orientation qz', 'Orientation qy', 'Orientation qx',
+                       'Orientation qw',
+                       # 'Orientation roll', 'Orientation pitch', 'Orientation yaw'
+                       ]
 
     if mode == 'chauvenet':
         for col in outlier_columns:
@@ -93,7 +91,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     # 添加参数
-    parser.add_argument('--func', type=str, choices=['chauvenet', 'mixture', 'distance', 'LOF'], default='chauvenet', help='which method')
+    parser.add_argument('--func', type=str, choices=['chauvenet', 'mixture', 'distance', 'LOF'], default='chauvenet',
+                        help='which method')
 
     # 解析命令行参数
     args = parser.parse_args()

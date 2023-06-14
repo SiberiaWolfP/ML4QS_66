@@ -3,7 +3,7 @@ import scipy
 import copy
 import math
 import numpy as np
-import torch
+from util.common import GPU
 
 # Not a class, just a bunch of useful functions.
 
@@ -29,20 +29,24 @@ def distance(rows, d_function='euclidean'):
 
 
 def print_statistics(dataset, describe=True):
+    if GPU:
+        df = dataset.to_pandas()
+    else:
+        df = dataset
     if describe:
         # .describe() gives number of values, mean, standard deviation, min and max for each column in one table.
-        print(dataset.describe())
+        print(df.describe())
         return
 
     print('\ncolumn \t\t % missing \t\t mean \t\t standard deviation \t\t min \t\t max')
-    dataset_length = len(dataset.index)
-    for col in dataset.columns:
+    dataset_length = len(df.index)
+    for col in df.columns:
         print('\t\t'.join([f'{col}',
-                           f'{(dataset_length - dataset[col].count()) / dataset_length * 100:3.1f}%',
-                           f'{dataset[col].mean():6.3f}',
-                           f'{dataset[col].std():6.3f}',
-                           f'{dataset[col].min():6.3f}',
-                           f'{dataset[col].max():6.3f}']))
+                           f'{(dataset_length - df[col].count()) / dataset_length * 100:3.1f}%',
+                           f'{df[col].mean():6.3f}',
+                           f'{df[col].std():6.3f}',
+                           f'{df[col].min():6.3f}',
+                           f'{df[col].max():6.3f}']))
 
 
 def print_table_cell(value1, value2):
