@@ -56,5 +56,5 @@ for col in labeled_cols:
 
 new_dataframe.sort_values(by='time')
 new_dataframe.reset_index(drop=True)
-new_dataframe.to_csv(result_folder + result_file_name)
+new_dataframe.to_csv(result_folder + result_file_name, index=False)
 print('end')

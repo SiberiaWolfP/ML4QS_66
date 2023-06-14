@@ -32,7 +32,7 @@ def main(mode):
 
     new_dataframe.sort_values(by='time')
     new_dataframe.reset_index(drop=True)
-    new_dataframe.to_csv(result_folder + result_file_name)
+    new_dataframe.to_csv(result_folder + result_file_name, index=False)
 
 
 def removing_outliers(mode, dataset):
