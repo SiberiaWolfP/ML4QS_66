@@ -15,7 +15,7 @@ class KalmanFilters:
             numpy_matrix_state_with_mask = np.ma.masked_invalid(numpy_array_state)
             kf = kf.em(numpy_matrix_state_with_mask, n_iter=5)
             (new_data, filtered_state_covariances) = kf.filter(numpy_matrix_state_with_mask)
-            data_table[col + ' kalman'] = new_data
+            data_table[col + '_kalman'] = new_data
             print(col)
         print(data_table.columns)
         return data_table

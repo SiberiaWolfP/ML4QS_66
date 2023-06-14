@@ -43,7 +43,7 @@ class DistributionBasedOutlierDetection:
                 1.0 - 0.5 * (scipy.special.erf(high[i]) - scipy.special.erf(low[i])))
             # And mark as an outlier when the probability is below our criterion.
             mask.append(prob[i] < criterion)
-        data_table[col + ' outlier'] = mask
+        data_table[col + '_outlier'] = mask
         # print(mask)
         return data_table
 

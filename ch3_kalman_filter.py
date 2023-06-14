@@ -33,7 +33,7 @@ filter_columns = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
 #     dataset.to_csv(result_folder + os.path.basename(csv_file))
 
 dataset = pd.read_csv(raw_file)
-labeled_cols = dataset.columns[dataset.columns.str.contains('label ')]
+labeled_cols = dataset.columns[dataset.columns.str.contains('label_')]
 new_dataframe = pd.DataFrame()
 for col in labeled_cols:
     subset = dataset[dataset[col] == 1].copy()\
@@ -45,7 +45,7 @@ for col in labeled_cols:
 new_dataframe.sort_values(by='time')
 new_dataframe.reset_index(drop=True)
 
-kalman_check_cols = new_dataframe.columns[new_dataframe.columns.str.contains(' kalman')]
+kalman_check_cols = new_dataframe.columns[new_dataframe.columns.str.contains('_kalman')]
 new_dataframe = del_cols(new_dataframe, kalman_check_cols)
 
 new_dataframe.to_csv(result_folder + result_file_name)

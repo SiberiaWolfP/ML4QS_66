@@ -45,7 +45,7 @@ def impute_missing(dataset):
 
 
 dataset = pd.read_csv(raw_file)
-labeled_cols = dataset.columns[dataset.columns.str.contains('label ')]
+labeled_cols = dataset.columns[dataset.columns.str.contains('label_')]
 new_dataframe = pd.DataFrame()
 for col in labeled_cols:
     subset = dataset[dataset[col] == 1].copy()\
