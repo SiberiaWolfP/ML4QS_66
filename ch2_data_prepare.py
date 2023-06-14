@@ -19,6 +19,7 @@ ACTIVITIES = ['cycling', 'downstairs', 'onsubway', 'playing_phone',
               'running', 'standing', 'upstairs', 'walking']
 
 SENSORS = ['Accelerometer', 'Gravity', 'Gyroscope', 'Magnetometer', 'Microphone', 'Orientation']
+PREFIX = ['acc_', 'gra_', 'gyr_', 'mag_', 'mic_', 'ori_']
 
 # We can call Path.mkdir(exist_ok=True) to make any required directories if they don't already exist.
 [path.mkdir(exist_ok=True, parents=True) for path in [DATASET_PATH, RESULT_PATH]]
@@ -26,7 +27,7 @@ SENSORS = ['Accelerometer', 'Gravity', 'Gyroscope', 'Magnetometer', 'Microphone'
 print('Please wait, this will take a while to run!')
 
 dataset = CreateDataset(base_dir=DATASET_PATH, activities_dir=ACTIVITIES_PATH, intermediate_dir=RESULT_PATH,
-                        sensors=SENSORS)
+                        sensors=SENSORS, prefix=PREFIX)
 
 # Merge activities separately
 for activity in ACTIVITIES:
@@ -45,7 +46,7 @@ for granularity in GRANULARITIES:
     resampled_df = dataset.resample(granularity)
     resampled_df.to_csv(RESULT_PATH / f'raw_{granularity}.csv', index=False)
     # Plot all data
-    columns = copy.deepcopy(SENSORS)
+    columns = copy.deepcopy(PREFIX)
     columns.append('label')
     DataViz.plot_dataset(resampled_df, columns,
                          ['like', 'like', 'like', 'like', 'like', 'like', 'like'],

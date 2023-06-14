@@ -16,12 +16,14 @@ class CreateDataset:
     sensors = []
     data_table = None
     activities_df = []
+    prefix = []
 
-    def __init__(self, base_dir, activities_dir, intermediate_dir, sensors):
+    def __init__(self, base_dir, activities_dir, intermediate_dir, sensors, prefix):
         self.base_dir = base_dir
         self.activities_dir = activities_dir
         self.intermediate_dir = intermediate_dir
         self.sensors = sensors
+        self.prefix = prefix
 
     # Merge activity data respectively
     def add_activity(self, activity):
@@ -45,7 +47,7 @@ class CreateDataset:
                     df.drop(columns=['yaw', 'roll', 'pitch'], inplace=True)
 
                 unchanged_cols = ['time']
-                df.columns = [col if col in unchanged_cols else sensor + ' ' + col for col in df.columns]
+                df.columns = [col if col in unchanged_cols else self.prefix[idx] + col for col in df.columns]
 
                 df.set_index('time', inplace=True)
                 dfs.append(df)
@@ -61,8 +63,8 @@ class CreateDataset:
         # Sort the merged dataframe by time
         master_df = master_df.sort_values('time')
         # Add label column
-        master_df['label ' + os.path.basename(activity)] = 1
-        master_df['label ' + os.path.basename(activity)] = master_df['label ' + os.path.basename(activity)].astype(int)
+        master_df['label_' + activity] = 1
+        master_df['label_' + activity] = master_df['label_' + os.path.basename(activity)].astype(int)
         # Save the merged dataframe to a new csv file
         # master_df.to_csv(self.activities_dir + activity + '.csv', index=False)
         self.activities_df.append(master_df)

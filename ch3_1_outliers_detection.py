@@ -22,7 +22,7 @@ if not os.path.exists(result_folder):
 
 def main(mode):
     dataset = pd.read_csv(raw_file)
-    labeled_cols = dataset.columns[dataset.columns.str.contains('label ')]
+    labeled_cols = dataset.columns[dataset.columns.str.contains('label')]
     new_dataframe = pd.DataFrame()
     for col in labeled_cols:
         subset = dataset[dataset[col] == 1].copy() \
@@ -34,22 +34,19 @@ def main(mode):
     new_dataframe.sort_values(by='time')
     new_dataframe.reset_index(drop=True)
     
-    outlier_check_cols = new_dataframe.columns[new_dataframe.columns.str.contains(' outlier')]
+    outlier_check_cols = new_dataframe.columns[new_dataframe.columns.str.contains('outlier')]
     new_dataframe = del_cols(new_dataframe, outlier_check_cols)
 
     new_dataframe.to_csv(result_folder + result_file_name, index=False)
 
 
 def removing_outliers(mode, dataset):
-    outlier_columns = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
-                       'Gravity z', 'Gravity y', 'Gravity x',
-                       'Gyroscope z', 'Gyroscope y', 'Gyroscope x',
-                       'Magnetometer z', 'Magnetometer y', 'Magnetometer x',
-                       'Microphone dBFS',
-                       'Orientation qz', 'Orientation qy', 'Orientation qx',
-                       'Orientation qw',
-                       # 'Orientation roll', 'Orientation pitch', 'Orientation yaw'
-                       ]
+    outlier_columns = ['acc_z', 'acc_y', 'acc_x',
+                       'gra_z', 'gra_y', 'gra_x',
+                       'gyr_z', 'gyr_y', 'gyr_x',
+                       'mag_z', 'mag_y', 'mag_x',
+                       'mic_dBFS',
+                       'ori_qz', 'ori_qy', 'ori_qx', 'ori_qw']
 
     if mode == 'chauvenet':
         for col in outlier_columns:
@@ -86,7 +83,7 @@ def removing_outliers(mode, dataset):
             # dataset.loc[dataset[f'{col} outlier'] == True, col] = np.nan
             # del dataset[col + '_outlier']
 
-    dataset.loc[dataset[f'{col} outlier'] == True, col] = np.nan
+    dataset.loc[dataset[f'{col}_outlier'] == True, col] = np.nan
     # print(dataset.columns)
     return dataset
 

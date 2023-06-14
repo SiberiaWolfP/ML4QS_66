@@ -63,10 +63,10 @@ def main():
         # please look in Chapter4 TemporalAbstraction.py to look for more aggregation methods or make your own.
 
         for ws in window_sizes:
-            dataset = NumAbs.abstract_numerical(dataset, ['Accelerometer x'], ws, 'mean')
-            dataset = NumAbs.abstract_numerical(dataset, ['Accelerometer x'], ws, 'std')
+            dataset = NumAbs.abstract_numerical(dataset, ['acc_x'], ws, 'mean')
+            dataset = NumAbs.abstract_numerical(dataset, ['acc_x'], ws, 'std')
 
-        DataViz.plot_dataset(dataset, ['Accelerometer x', 'Accelerometer x_temp_mean', 'Accelerometer x_temp_std', 'label'],
+        DataViz.plot_dataset(dataset, ['acc_x', 'acc_x_temp_mean', 'acc_x_temp_std', 'label'],
                              ['exact', 'like', 'like', 'like'], ['line', 'line', 'line', 'points'])
         print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -75,9 +75,9 @@ def main():
 
         fs = float(1000) / milliseconds_per_instance
         ws = int(float(10000) / milliseconds_per_instance)
-        dataset = FreqAbs.abstract_frequency(dataset, ['Accelerometer x'], ws, fs)
+        dataset = FreqAbs.abstract_frequency(dataset, ['acc_x'], ws, fs)
         # Spectral analysis.
-        DataViz.plot_dataset(dataset, ['Accelerometer x_max_freq', 'Accelerometer x_freq_weighted', 'Accelerometer x_pse', 'label'],
+        DataViz.plot_dataset(dataset, ['acc_x_max_freq', 'acc_x_freq_weighted', 'acc_x_pse', 'label'],
                              ['like', 'like', 'like', 'like'], ['line', 'line', 'line', 'points'])
         print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -86,14 +86,13 @@ def main():
         fs = float(1000) / milliseconds_per_instance
 
         selected_predictor_cols = [c for c in dataset.columns if not 'label' in c]
-        print(dataset.columns)
 
         dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'mean')
         dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'std')
         # TODO: Add your own aggregation methods here
 
-        DataViz.plot_dataset(dataset, ['Accelerometer x', 'Gyroscope x', 'Magnetometer x', 'Microphone dBFS', 'Orientation qx',
-                                       'Gravity x', 'label'],
+        DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'mag_x', 'mic_dBFS',
+                                       'ori_qx', 'gra_x', 'label'],
                              ['like', 'like', 'like', 'like', 'like', 'like', 'like'],
                              ['line', 'line', 'line', 'line', 'line', 'line', 'points'])
 
@@ -102,12 +101,12 @@ def main():
         dataset = CatAbs.abstract_categorical(dataset, ['label'], ['like'], 0.03,
                                               int(float(5 * 60000) / milliseconds_per_instance), 2)
 
-        periodic_predictor_cols = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
-                                   'Gravity z', 'Gravity y', 'Gravity x',
-                                   'Gyroscope z', 'Gyroscope y', 'Gyroscope x',
-                                   'Magnetometer z', 'Magnetometer y', 'Magnetometer x',
-                                   'Orientation qz', 'Orientation qy', 'Orientation qx',
-                                   'Orientation qw']
+        periodic_predictor_cols = ['acc_z', 'acc_y', 'acc_x',
+                                   'gra_z', 'gra_y', 'gra_x',
+                                   'gyr_z', 'gyr_y', 'gyr_x',
+                                   'mag_z', 'mag_y', 'mag_x',
+                                   'ori_qz', 'ori_qy', 'ori_qx',
+                                   'ori_qw']
 
         dataset = FreqAbs.abstract_frequency(copy.deepcopy(dataset), periodic_predictor_cols,
                                              int(float(10000) / milliseconds_per_instance), fs)
@@ -122,8 +121,8 @@ def main():
 
         dataset.to_csv(DATA_PATH / RESULT_FNAME)
 
-        DataViz.plot_dataset(dataset, ['Accelerometer x', 'Gyroscope x', 'Magnetometer x', 'Microphone dBFS',
-                                       'Orientation qx', 'Gravity x', 'label'],
+        DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'mag_x', 'mic_dBFS',
+                                       'ori_qx', 'gra_x', 'label'],
                              ['like', 'like', 'like', 'like', 'like', 'like', 'like'],
                              ['line', 'line', 'line', 'line', 'line', 'line', 'points'])
         print("--- %s seconds ---" % (time.time() - start_time))
@@ -134,7 +133,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', type=str, default='final',
                         help="Select what version to run: final, aggregation or freq \
-                        'aggregation' studies the effect of several aggeregation methods \
+                        'aggregation' studies the effect of several aggregation methods \
                         'frequency' applies a Fast Fourier transformation to a single variable \
                         'final' is used for the next chapter ", choices=['aggregation', 'frequency', 'final'])
 
