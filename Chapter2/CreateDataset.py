@@ -106,6 +106,7 @@ class CreateDataset:
         resampled_df.reset_index(inplace=True)
         resampled_df['time'] = pd.to_datetime(resampled_df['time'], unit='ns').astype('int64')
         label_cols = [col for col in resampled_df.columns if 'label' in col]
+        resampled_df[label_cols] = resampled_df[label_cols].fillna(0)
         resampled_df[label_cols] = resampled_df[label_cols].astype('Int64')
         # resampled_df.to_csv(self.intermediate_dir + '/raw_' + g + '.csv', index=False)
         # self.data_table.reset_index(inplace=True)
