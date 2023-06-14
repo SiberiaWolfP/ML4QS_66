@@ -6,7 +6,7 @@ import os
 data_folder = 'datasets/intermediate/after_removing_outliers/'
 result_folder = 'datasets/intermediate/after_impute_missing_values/'
 raw_file = 'datasets/intermediate/after_removing_outliers/ch3_1_after_outliers_detection.csv'
-result_file_name = 'ch3_2_after_missing_values_imputation.py'
+result_file_name = 'ch3_2_after_missing_values_imputation.csv'
 
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
@@ -17,7 +17,9 @@ interpolat_cols = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
                    'Magnetometer z', 'Magnetometer y', 'Magnetometer x',
                    'Microphone dBFS',
                    'Orientation qz', 'Orientation qy', 'Orientation qx',
-                   'Orientation qw', 'Orientation roll', 'Orientation pitch', 'Orientation yaw']
+                   'Orientation qw',
+                   # 'Orientation roll', 'Orientation pitch', 'Orientation yaw'
+                   ]
 
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
