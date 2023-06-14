@@ -3,13 +3,7 @@ import scipy
 import copy
 import math
 import numpy as np
-import torch
-GPU = False
-if torch.cuda.is_available():
-    GPU = True
-    import cudf as pd
-else:
-    import pandas as pd
+from util.common import GPU
 
 # Not a class, just a bunch of useful functions.
 

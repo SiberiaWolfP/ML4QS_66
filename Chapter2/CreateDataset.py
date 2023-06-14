@@ -1,9 +1,8 @@
 import torch
 import os
 import glob
-GPU = False
-if torch.cuda.is_available():
-    GPU = True
+from util.common import GPU
+
 if GPU is True:
     import cudf as pd
 else:
