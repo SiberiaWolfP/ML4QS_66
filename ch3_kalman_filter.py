@@ -14,15 +14,12 @@ result_file_name = 'ch3_1_2_after_kalman_filter.csv'
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
 
-filter_columns = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x',
-                   'Gravity z', 'Gravity y', 'Gravity x',
-                   'Gyroscope z', 'Gyroscope y', 'Gyroscope x',
-                   'Magnetometer z', 'Magnetometer y', 'Magnetometer x',
-                   'Microphone dBFS',
-                   'Orientation qz', 'Orientation qy', 'Orientation qx',
-                   'Orientation qw',
-                   # 'Orientation roll', 'Orientation pitch', 'Orientation yaw'
-                   ]
+filter_columns = ['acc_z', 'acc_y', 'acc_x',
+                    'gra_z', 'gra_y', 'gra_x',
+                    'gyr_z', 'gyr_y', 'gyr_x',
+                    'mag_z', 'mag_y', 'mag_x',
+                    'mic_dBFS',
+                    'ori_qz', 'ori_qy', 'ori_qx', 'ori_qw']
 
 # csv_files = glob.glob(data_folder + '/*.csv')
 
