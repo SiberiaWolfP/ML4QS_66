@@ -1,8 +1,10 @@
 import numpy as np
 from pykalman import KalmanFilter
+from util.decorator import check_empty_args
 
 class KalmanFilters:
 
+    @check_empty_args
     def apply_kalman_filter(self, data_table, cols):
         kf = KalmanFilter(transition_matrices=[[1]], observation_matrices=[[1]])
 
