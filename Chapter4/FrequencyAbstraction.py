@@ -72,7 +72,9 @@ class FourierTransformation:
                                  'constant', constant_values=np.nan)
             # add new freq columns to frame
 
-            data_table[collist] = pd.DataFrame(frequencies, index=data_table.index)
+            new_cols = pd.DataFrame(columns=collist, data=frequencies, index=data_table.index)
+            data_table = pd.concat([data_table, new_cols], axis=1)
+            # data_table[collist] = pd.DataFrame(frequencies, index=data_table.index)
 
             # reset temp-storage array
             del self.temp_list[:]
