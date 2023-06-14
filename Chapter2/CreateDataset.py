@@ -4,6 +4,7 @@ import glob
 GPU = False
 if torch.cuda.is_available():
     GPU = True
+if GPU is True:
     import cudf as pd
 else:
     import pandas as pd
@@ -66,10 +67,7 @@ class CreateDataset:
         # Save the merged dataframe to a new csv file
         # master_df.to_csv(self.activities_dir + activity + '.csv', index=False)
         self.activities_df.append(master_df)
-        if GPU is True:
-            return master_df.to_pandas()
-        else:
-            return master_df
+        return master_df
 
     def merge_activities(self):
         self.data_table = pd.DataFrame()
@@ -84,10 +82,7 @@ class CreateDataset:
         self.data_table[label_cols] = self.data_table[label_cols].fillna(0)
         self.data_table = self.data_table.sort_values('time')
         # self.data_table.to_csv(self.intermediate_dir + '/raw.csv', index=False)
-        if GPU is True:
-            return self.data_table.to_pandas()
-        else:
-            return self.data_table
+        return self.data_table
 
     def resample(self, granularity):
         if self.data_table is None:
@@ -115,7 +110,4 @@ class CreateDataset:
         resampled_df[label_cols] = resampled_df[label_cols].astype('Int64')
         # resampled_df.to_csv(self.intermediate_dir + '/raw_' + g + '.csv', index=False)
         # self.data_table.reset_index(inplace=True)
-        if GPU is True:
-            return resampled_df.to_pandas()
-        else:
-            return resampled_df
+        return resampled_df
