@@ -85,7 +85,7 @@ class CreateDataset:
 
     def resample(self, granularity):
         if self.data_table is None:
-            self.data_table = pd.read_csv(self.intermediate_dir / '/raw.csv')
+            self.data_table = pd.read_csv(self.intermediate_dir / 'raw.csv')
         self.data_table['time'] = pd.to_datetime(self.data_table['time'], unit='ns')
         # self.data_table.set_index('time', inplace=True)
 
@@ -100,11 +100,11 @@ class CreateDataset:
                 resampled_df = pd.from_pandas(group_df.resample(on='time', rule=granularity).mean())
             else:
                 resampled_df = group_df.resample(on='time', rule=granularity).mean()
-                resampled_df.drop(columns=['group'], inplace=True, errors='ignore')
+            resampled_df.drop(columns=['group'], inplace=True, errors='ignore')
             resampled_dfs.append(resampled_df)
         resampled_df = pd.concat(resampled_dfs)
         resampled_df.reset_index(inplace=True)
-        resampled_df['time'] = pd.to_datetime(self.data_table['time'], unit='ns').astype('int64')
+        resampled_df['time'] = pd.to_datetime(resampled_df['time'], unit='ns').astype('int64')
         label_cols = [col for col in resampled_df.columns if 'label' in col]
         resampled_df[label_cols] = resampled_df[label_cols].astype('Int64')
         # resampled_df.to_csv(self.intermediate_dir + '/raw_' + g + '.csv', index=False)

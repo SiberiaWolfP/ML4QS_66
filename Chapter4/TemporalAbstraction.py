@@ -7,8 +7,13 @@
 #                                                            #
 ##############################################################
 
-import numpy as np
+from util.common import GPU
 import scipy.stats as stats
+
+if GPU is True:
+    import cupy as np
+else:
+    import numpy as np
 
 
 # Class to abstract a history of numerical values we can use as an attribute.

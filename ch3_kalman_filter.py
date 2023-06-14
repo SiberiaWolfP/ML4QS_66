@@ -1,7 +1,7 @@
 from Chapter3.kalman_filters import KalmanFilters
-import pandas as pd
 import glob
 import os
+import pandas as pd
 
 # slow!
 

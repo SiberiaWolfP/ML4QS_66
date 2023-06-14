@@ -1,18 +1,14 @@
-##############################################################
-#                                                            #
-#    Mark Hoogendoorn and Burkhardt Funk (2017)              #
-#    Machine Learning for the Quantified Self                #
-#    Springer                                                #
-#    Chapter 4                                               #
-#                                                            #
-##############################################################
-
+from util.common import GPU
 import sys
 import copy
-import pandas as pd
 import time
 from pathlib import Path
 import argparse
+
+if GPU is True:
+    import cudf as pd
+else:
+    import pandas as pd
 
 from util.VisualizeDataset import VisualizeDataset
 from Chapter4.TemporalAbstraction import NumericalAbstraction
@@ -22,7 +18,7 @@ from Chapter4.TextAbstraction import TextAbstraction
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
 DATA_PATH = Path('./datasets/intermediate/')
-DATASET_FNAME = 'chapter3_result_final.csv'
+DATASET_FNAME = 'after_impute_missing_values/ch3_2_after_missing_values_imputation.csv'
 RESULT_FNAME = 'chapter4_result.csv'
 
 
@@ -39,7 +35,8 @@ def main():
 
     start_time = time.time()
     try:
-        dataset = pd.read_csv(DATA_PATH / DATASET_FNAME, index_col=0)
+        dataset = pd.read_csv(DATA_PATH / DATASET_FNAME)
+        dataset.set_index(dataset['time'], inplace=True)
         dataset.index = pd.to_datetime(dataset.index)
     except IOError as e:
         print('File not found, try to run previous crowdsignals scripts first!')
@@ -49,7 +46,7 @@ def main():
     DataViz = VisualizeDataset(__file__)
 
     # Compute the number of milliseconds covered by an instance based on the first two rows
-    milliseconds_per_instance = (dataset.index[1] - dataset.index[0]).microseconds / 1000
+    milliseconds_per_instance = (dataset.index[1] - dataset.index[0]) / 1000
 
     NumAbs = NumericalAbstraction()
     FreqAbs = FourierTransformation()
@@ -91,6 +88,7 @@ def main():
 
         dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'mean')
         dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'std')
+        exit(0)
         # TODO: Add your own aggregation methods here
 
         DataViz.plot_dataset(dataset, ['acc_phone_x', 'gyr_phone_x', 'hr_watch_rate', 'light_phone_lux', 'mag_phone_x',

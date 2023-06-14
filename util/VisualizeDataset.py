@@ -1,11 +1,13 @@
+from util.common import GPU
 import matplotlib.pyplot as plt
 import matplotlib.dates as md
-import numpy as np
 from scipy.cluster.hierarchy import dendrogram
 import itertools
 import sys
 from pathlib import Path
 import matplotlib as mpl
+
+import numpy as np
 
 mpl.use('tkagg')
 

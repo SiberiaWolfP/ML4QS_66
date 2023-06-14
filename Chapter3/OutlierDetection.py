@@ -1,19 +1,14 @@
-##############################################################
-#                                                            #
-#    Mark Hoogendoorn and Burkhardt Funk (2017)              #
-#    Machine Learning for the Quantified Self                #
-#    Springer                                                #
-#    Chapter 3                                               #
-#                                                            #
-##############################################################
-
+from util.common import GPU
 import scipy
 import math
 from sklearn.mixture import GaussianMixture
 import numpy as np
-import pandas as pd
 import src.util.util as util
 import copy
+if GPU is True:
+    import cudf as pd
+else:
+    import pandas as pd
 
 # Class for outlier detection algorithms based on some distribution of the data. They
 # all consider only single points per row (i.e. one column).
