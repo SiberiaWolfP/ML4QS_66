@@ -16,7 +16,8 @@ from Chapter4.TextAbstraction import TextAbstraction
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
 DATA_PATH = Path('./datasets/intermediate/')
-DATASET_FNAME = 'after_impute_missing_values/ch3_2_after_missing_values_imputation.csv'
+DATASET_FNAME = 'after_transform/ch3_after_pca.csv'
+# DATASET_FNAME = 'after_impute_missing_values/ch3_2_after_missing_values_imputation.csv'
 RESULT_FNAME = 'chapter4_result.csv'
 
 
@@ -47,6 +48,8 @@ def main():
     # Compute the number of milliseconds covered by an instance based on the first two rows
     milliseconds_per_instance = (dataset.index[1] - dataset.index[0]).microseconds / 1000
 
+    print(dataset.index[1])
+    print(dataset.index[0])
     dataset = dataset.sort_index()
     # print(dataset.head())
 

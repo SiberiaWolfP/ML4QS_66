@@ -29,4 +29,4 @@ n_pcs = 7
 dataset = PCA.apply_pca(copy.deepcopy(
     dataset), selected_predictor_cols, n_pcs)
 
-dataset.to_csv(result_folder+result_file_name)
+dataset.to_csv(result_folder+result_file_name, index=False)
