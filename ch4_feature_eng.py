@@ -67,8 +67,8 @@ def main():
             dataset = NumAbs.abstract_numerical(dataset, ['acc_x'], ws, 'mean')
             dataset = NumAbs.abstract_numerical(dataset, ['acc_x'], ws, 'std')
 
-        DataViz.plot_dataset(dataset, ['acc_x', 'acc_x_temp_mean', 'acc_x_temp_std', 'label'],
-                             ['exact', 'like', 'like', 'like'], ['line', 'line', 'line', 'points'])
+        # DataViz.plot_dataset(dataset, ['acc_x', 'acc_x_temp_mean', 'acc_x_temp_std', 'label'],
+        #                      ['exact', 'like', 'like', 'like'], ['line', 'line', 'line', 'points'])
         print("--- %s seconds ---" % (time.time() - start_time))
 
     if FLAGS.mode == 'frequency':
@@ -78,8 +78,8 @@ def main():
         ws = int(float(10000) / milliseconds_per_instance)
         dataset = FreqAbs.abstract_frequency(dataset, ['acc_x'], ws, fs)
         # Spectral analysis.
-        DataViz.plot_dataset(dataset, ['acc_x_max_freq', 'acc_x_freq_weighted', 'acc_x_pse', 'label'],
-                             ['like', 'like', 'like', 'like'], ['line', 'line', 'line', 'points'])
+        # DataViz.plot_dataset(dataset, ['acc_x_max_freq', 'acc_x_freq_weighted', 'acc_x_pse', 'label'],
+        #                      ['like', 'like', 'like', 'like'], ['line', 'line', 'line', 'points'])
         print("--- %s seconds ---" % (time.time() - start_time))
 
     if FLAGS.mode == 'final':
@@ -92,10 +92,11 @@ def main():
         dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'std')
         # TODO: Add your own aggregation methods here
 
-        DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'mag_x', 'mic_dBFS',
-                                       'ori_qx', 'gra_x', 'label'],
-                             ['like', 'like', 'like', 'like', 'like', 'like', 'like'],
-                             ['line', 'line', 'line', 'line', 'line', 'line', 'points'])
+        # TODO: modify the columns to plot
+        # DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'mag_x', 'mic_dBFS',
+        #                                'ori_qx', 'gra_x', 'label'],
+        #                      ['like', 'like', 'like', 'like', 'like', 'like', 'like'],
+        #                      ['line', 'line', 'line', 'line', 'line', 'line', 'points'])
 
         CatAbs = CategoricalAbstraction()
 
@@ -124,10 +125,10 @@ def main():
         print(dataset.head())
         dataset.to_csv(DATA_PATH / RESULT_FNAME)
 
-        DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'mag_x', 'mic_dBFS',
-                                       'ori_qx', 'gra_x', 'label'],
-                             ['like', 'like', 'like', 'like', 'like', 'like', 'like'],
-                             ['line', 'line', 'line', 'line', 'line', 'line', 'points'])
+        # DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'mag_x', 'mic_dBFS',
+        #                                'ori_qx', 'gra_x', 'label'],
+        #                      ['like', 'like', 'like', 'like', 'like', 'like', 'like'],
+        #                      ['line', 'line', 'line', 'line', 'line', 'line', 'points'])
         print("--- %s seconds ---" % (time.time() - start_time))
 
 

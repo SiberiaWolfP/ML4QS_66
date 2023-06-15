@@ -6,6 +6,7 @@
 #    Chapter 4                                               #
 #                                                            #
 ##############################################################
+import pandas as pd
 
 from util.common import GPU
 import scipy.stats as stats
@@ -91,9 +92,13 @@ class CategoricalAbstraction:
             # Otherwise we identify the time points at which we observe the value.
             else:
 
-                timestamp_rows = data_table[data_table[pattern[0]] > 0].index.values.tolist()
+                # timestamp_rows = data_table[data_table[pattern[0]] > 0].index.values.tolist()
+                # times = [data_table.index.get_loc(i) for i in timestamp_rows]
 
-                times = [data_table.index.get_loc(i) for i in timestamp_rows]
+                timestamp_rows = data_table[data_table[pattern[0]] > 0].index
+                # times = data_table.index[data_table.index.isin(timestamp_rows)].tolist()
+                times = data_table.index.get_indexer(timestamp_rows)
+                print(timestamp_rows)
                 self.cache[self.to_string(pattern)] = times
 
         # If we have a complex pattern (<n> (b) <m> or <n> (c) <m>)
@@ -147,7 +152,9 @@ class CategoricalAbstraction:
                 # Set the occurrence of the pattern in the row to 0.
                 data_table[self.pattern_prefix + self.to_string(pattern)] = 0
                 # data_table[self.pattern_prefix + self.to_string(pattern)][times] = 1
-                data_table.iloc[times, data_table.columns.get_loc(self.pattern_prefix + self.to_string(pattern))] = 1
+                # data_table.iloc[times, data_table.columns.get_loc(self.pattern_prefix + self.to_string(pattern))] = 1
+                data_table.loc[data_table.index.isin(times), self.pattern_prefix + self.to_string(pattern)] = 1
+
         return data_table, selected_patterns
 
     # extends a set of k-patterns with the 1-patterns that have sufficient support.
