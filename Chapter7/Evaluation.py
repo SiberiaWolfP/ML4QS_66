@@ -1,16 +1,11 @@
-##############################################################
-#                                                            #
-#    Mark Hoogendoorn and Burkhardt Funk (2017)              #
-#    Machine Learning for the Quantified Self                #
-#    Springer                                                #
-#    Chapter 7                                               #
-#                                                            #
-##############################################################
-
+from util.common import GPU
 from sklearn import metrics
-import pandas as pd
-import numpy as np
 import math
+import numpy as np
+if GPU:
+    import cudf as cd
+    import cupy as cp
+
 
 # Class for evaluation metrics of classification problems.
 class ClassificationEvaluation:
@@ -43,6 +38,7 @@ class ClassificationEvaluation:
     def confusion_matrix(self, y_true, y_pred, labels):
         return metrics.confusion_matrix(y_true, y_pred, labels=labels)
 
+
 # Class for evaluation metrics of regression problems.
 class RegressionEvaluation:
 
@@ -54,7 +50,7 @@ class RegressionEvaluation:
     def mean_squared_error_with_std(self, y_true, y_pred):
         y_true = np.array(y_true)
         y_pred = np.array(y_pred)
-        errors = np.square(y_true-y_pred)
+        errors = np.square(y_true - y_pred)
         mse = errors.mean()
         std = errors.std()
         return mse.mean(), std.mean()

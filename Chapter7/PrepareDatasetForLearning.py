@@ -1,23 +1,18 @@
-##############################################################
-#                                                            #
-#    Mark Hoogendoorn and Burkhardt Funk (2017)              #
-#    Machine Learning for the Quantified Self                #
-#    Springer                                                #
-#    Chapter 7                                               #
-#                                                            #
-##############################################################
-
+from util.common import GPU
 from sklearn.model_selection import train_test_split
-import numpy as np
 import random
 import copy
-import pandas as pd
+
+if GPU is True:
+    import cupy as cp
+    import cudf as cd
+import numpy as np
+
 
 # This class creates datasets that can be used by the learning algorithms. Up till now we have
 # assumed binary columns for each class, we will for instance introduce approaches to create
 # a single categorical attribute.
 class PrepareDatasetForLearning:
-
     default_label = 'undefined'
     class_col = 'class'
     person_col = 'person'
@@ -39,7 +34,7 @@ class PrepareDatasetForLearning:
             # If we have exactly one true class column, we can assign that value,
             # otherwise we keep the default class.
             if sum_values[i] == 1:
-                dataset.iloc[i, dataset.columns.get_loc(self.class_col)] = dataset[labels].iloc[i].idxmax(axis=1)
+                dataset.iloc[i, dataset.columns.get_loc(self.class_col)] = dataset[labels].iloc[i].idxmax()
         # And remove our old binary columns.
         dataset = dataset.drop(labels, axis=1)
         return dataset
@@ -52,7 +47,8 @@ class PrepareDatasetForLearning:
     # training_frac of the data for training and the last 1-training_frac for testing. Otherwise, we select points randomly.
     # We return a training set, the labels of the training set, and the same for a test set. We can set the random seed
     # to make the split reproducible.
-    def split_single_dataset_classification(self, dataset, class_labels, matching, training_frac, filter=True, temporal=False, random_state=0):
+    def split_single_dataset_classification(self, dataset, class_labels, matching, training_frac, filter=True,
+                                            temporal=False, random_state=0):
         # Create a single class column if we have the 'like' option.
         if matching == 'like':
             dataset = self.assign_label(dataset, class_labels)
@@ -79,8 +75,13 @@ class PrepareDatasetForLearning:
             test_set_y = dataset.iloc[end_training_set:len(dataset.index), class_label_indices]
         # For non temporal data we use a standard function to randomly split the dataset.
         else:
-            training_set_X, test_set_X, training_set_y, test_set_y = train_test_split(dataset.iloc[:,features],
-                                                                                      dataset.iloc[:,class_label_indices], test_size=(1-training_frac), stratify=dataset.iloc[:,class_label_indices], random_state=random_state)
+            training_set_X, test_set_X, training_set_y, test_set_y = train_test_split(dataset.iloc[:, features],
+                                                                                      dataset.iloc[:,
+                                                                                      class_label_indices],
+                                                                                      test_size=(1 - training_frac),
+                                                                                      stratify=dataset.iloc[:,
+                                                                                               class_label_indices],
+                                                                                      random_state=random_state)
         return training_set_X, test_set_X, training_set_y, test_set_y
 
     def split_single_dataset_regression_by_time(self, dataset, target, start_training, end_training, end_test):
@@ -94,20 +95,26 @@ class PrepareDatasetForLearning:
         del test_X[target]
         return train_X, test_X, train_y, test_y
 
-
     # Split a dataset of a single person for a regression with the specified targets. We can
     # have multiple targets if we want. It assumes a list in 'targets'
     # We can select whether we have a temporal dataset or not. In the former, we will select the first
     # training_frac of the data for training and the last 1-training_frac for testing. Otherwise, we select points randomly.
     # We return a training set, the labels of the training set, and the same for a test set. We can set the random seed
     # to make the split reproducible.
-    def split_single_dataset_regression(self, dataset, targets, training_frac, filter=False, temporal=False, random_state=0):
+    def split_single_dataset_regression(self, dataset, targets, training_frac, filter=False, temporal=False,
+                                        random_state=0):
         # We just temporarily change some attribute values associated with the classification algorithm
         # and change them for numerical values. We then simply apply the classification variant of the
         # function.
         temp_default_label = self.default_label
         self.default_label = np.nan
-        training_set_X, test_set_X, training_set_y, test_set_y = self.split_single_dataset_classification(dataset, targets, 'exact', training_frac, filter=filter, temporal=temporal, random_state=random_state)
+        training_set_X, test_set_X, training_set_y, test_set_y = self.split_single_dataset_classification(dataset,
+                                                                                                          targets,
+                                                                                                          'exact',
+                                                                                                          training_frac,
+                                                                                                          filter=filter,
+                                                                                                          temporal=temporal,
+                                                                                                          random_state=random_state)
         self.default_label = temp_default_label
         return training_set_X, test_set_X, training_set_y, test_set_y
 
@@ -129,7 +136,8 @@ class PrepareDatasetForLearning:
     # use (unknown_user=True) or for unseen data over all users. In the former, it return a training set containing
     # all data of training_frac users and test data for the remaining users. If the later, it return the training_frac
     # data of each user as a training set, and 1-training_frac data as a test set.
-    def split_multiple_datasets_classification(self, datasets, class_labels, matching, training_frac, filter=False, temporal=False, unknown_users=False, random_state=0):
+    def split_multiple_datasets_classification(self, datasets, class_labels, matching, training_frac, filter=False,
+                                               temporal=False, unknown_users=False, random_state=0):
         training_set_X = None
         training_set_y = None
         test_set_X = None
@@ -147,8 +155,9 @@ class PrepareDatasetForLearning:
             # the remaining users as test set.
             for i in range(0, training_len):
                 # We use the single dataset function for classification and add it to the training data
-                training_set_X_person, test_set_X_person, training_set_y_person, test_set_y_person = self.split_single_dataset_classification(datasets[indices[i]], class_labels, matching,
-                                                                                                                                              1, filter=filter, temporal=temporal, random_state=random_state)
+                training_set_X_person, test_set_X_person, training_set_y_person, test_set_y_person = self.split_single_dataset_classification(
+                    datasets[indices[i]], class_labels, matching,
+                    1, filter=filter, temporal=temporal, random_state=random_state)
                 # We add a person column.
                 training_set_X_person[self.person_col] = indices[i]
                 training_set_X = self.update_set(training_set_X, training_set_X_person)
@@ -156,8 +165,9 @@ class PrepareDatasetForLearning:
 
             for j in range(training_len, len(datasets)):
                 # We use the single dataset function for classification and add it to the test data
-                training_set_X_person, test_set_X_person, training_set_y_person, test_set_y_person = self.split_single_dataset_classification(datasets[indices[j]], class_labels, matching,
-                                                                                                                                              1, filter=filter, temporal=temporal, random_state=random_state)
+                training_set_X_person, test_set_X_person, training_set_y_person, test_set_y_person = self.split_single_dataset_classification(
+                    datasets[indices[j]], class_labels, matching,
+                    1, filter=filter, temporal=temporal, random_state=random_state)
                 # We add a person column.
                 training_set_X_person[self.person_col] = indices[j]
                 test_set_X = self.update_set(test_set_X, training_set_X_person)
@@ -166,8 +176,9 @@ class PrepareDatasetForLearning:
             init = True
             # Otherwise we split each dataset individually in a training and test set and add them.
             for i in range(0, len(datasets)):
-                training_set_X_person, test_set_X_person, training_set_y_person, test_set_y_person = self.split_single_dataset_classification(datasets[i], class_labels, matching,
-                                                                                                                                              training_frac, filter=filter, temporal=temporal, random_state=random_state)
+                training_set_X_person, test_set_X_person, training_set_y_person, test_set_y_person = self.split_single_dataset_classification(
+                    datasets[i], class_labels, matching,
+                    training_frac, filter=filter, temporal=temporal, random_state=random_state)
                 # We add a person column.
                 training_set_X_person[self.person_col] = i
                 test_set_X_person[self.person_col] = i
@@ -183,12 +194,20 @@ class PrepareDatasetForLearning:
     # use (unknown_user=True) or for unseen data over all users. In the former, it return a training set containing
     # all data of training_frac users and test data for the remaining users. If the later, it return the training_frac
     # data of each user as a training set, and 1-training_frac data as a test set.
-    def split_multiple_datasets_regression(self, datasets, targets, training_frac, filter=False, temporal=False, unknown_users=False, random_state=0):
+    def split_multiple_datasets_regression(self, datasets, targets, training_frac, filter=False, temporal=False,
+                                           unknown_users=False, random_state=0):
         # We just temporarily change some attribute values associated with the regression algorithm
         # and change them for numerical values. We then simply apply the classification variant of the
         # function.
         temp_default_label = self.default_label
         self.default_label = np.nan
-        training_set_X, test_set_X, training_set_y, test_set_y = self.split_multiple_datasets_classification(datasets, targets, 'exact', training_frac, filter=filter, temporal=temporal, unknown_users=unknown_users, random_state=random_state)
+        training_set_X, test_set_X, training_set_y, test_set_y = self.split_multiple_datasets_classification(datasets,
+                                                                                                             targets,
+                                                                                                             'exact',
+                                                                                                             training_frac,
+                                                                                                             filter=filter,
+                                                                                                             temporal=temporal,
+                                                                                                             unknown_users=unknown_users,
+                                                                                                             random_state=random_state)
         self.default_label = temp_default_label
         return training_set_X, test_set_X, training_set_y, test_set_y
