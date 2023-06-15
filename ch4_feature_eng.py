@@ -90,6 +90,7 @@ def main():
         fs = float(1000) / milliseconds_per_instance
 
         selected_predictor_cols = [c for c in dataset.columns if not 'label' in c]
+        print(selected_predictor_cols)
 
         dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'mean')
         dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'std')
@@ -103,7 +104,6 @@ def main():
 
         CatAbs = CategoricalAbstraction()
 
-        print(dataset.head())
         dataset = CatAbs.abstract_categorical(dataset, ['label'], ['like'], 0.03,
                                               int(float(5 * 60000) / milliseconds_per_instance), 2)
 
@@ -125,7 +125,24 @@ def main():
         skip_points = int((1 - window_overlap) * ws)
         dataset = dataset.iloc[::skip_points, :]
 
-        print(dataset.head())
+        print(len(dataset))
+
+        window_size = 10
+        features_df = pd.DataFrame()
+
+        # 每个窗口特征提取
+        for i in range(0, dataset.shape[0] - window_size + 1):
+            window_data = dataset.iloc[i:i + window_size]
+            window_features = {}
+            for col in periodic_predictor_cols:
+                col_features = NumAbs.compute_new_features_for_window(window_data[col])
+                col_features = {f'{col}_{key}': value for key, value in col_features.items()}
+                window_features.update(col_features)
+            features_df = features_df.append(window_features, ignore_index=True)
+
+        features_df.index = range(window_size - 1, dataset.shape[0])
+        dataset = pd.concat([dataset, features_df], axis=1)
+
         dataset.to_csv(DATA_PATH / RESULT_FNAME)
 
         # DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'mag_x', 'mic_dBFS',

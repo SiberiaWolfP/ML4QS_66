@@ -10,6 +10,8 @@ import pandas as pd
 
 from util.common import GPU
 import scipy.stats as stats
+from scipy import fftpack
+from scipy.stats import skew, kurtosis
 
 if GPU is True:
     import cupy as np
@@ -71,6 +73,38 @@ class NumericalAbstraction:
 
         return data_table
 
+    def compute_new_features_for_window(self, data):
+        features = {}
+        data = data.values  # 将pandas Series转换为numpy数组
+        features['max'] = data.max()
+        features['min'] = data.min()
+        features['mean'] = data.mean()
+        features['std'] = data.std()
+        features['median'] = np.median(data)
+        features['skew'] = skew(data)
+        features['kurtosis'] = kurtosis(data)
+
+        # 计算频域特征
+        fft_values = fftpack.fft(data)
+        fft_abs = abs(fft_values)
+        features['fft_max'] = np.max(fft_abs)
+        features['fft_min'] = np.min(fft_abs)
+        features['fft_mean'] = np.mean(fft_abs)
+        features['fft_std'] = np.std(fft_abs)
+
+        # 自相关特征
+        autocorr = np.correlate(data, data, mode='full')
+        features['autocorr_max'] = autocorr.max()
+        features['autocorr_min'] = autocorr.min()
+        features['autocorr_mean'] = autocorr.mean()
+        features['autocorr_median'] = np.median(autocorr)
+        features['autocorr_std'] = autocorr.std()
+
+        # 能量特征
+        features['energy'] = np.sum(np.square(data))
+
+        return features
+
 
 # Class to perform categorical abstraction. We obtain patterns of categorical attributes that occur frequently
 # over time.
@@ -98,7 +132,7 @@ class CategoricalAbstraction:
                 timestamp_rows = data_table[data_table[pattern[0]] > 0].index
                 # times = data_table.index[data_table.index.isin(timestamp_rows)].tolist()
                 times = data_table.index.get_indexer(timestamp_rows)
-                print(timestamp_rows)
+                # print(timestamp_rows)
                 self.cache[self.to_string(pattern)] = times
 
         # If we have a complex pattern (<n> (b) <m> or <n> (c) <m>)
@@ -148,7 +182,8 @@ class CategoricalAbstraction:
             # value to 1 at which it occurs.
             if support >= min_support:
                 selected_patterns.append(pattern)
-                print(self.to_string(pattern))
+                # print(self.to_string(pattern))
+
                 # Set the occurrence of the pattern in the row to 0.
                 data_table[self.pattern_prefix + self.to_string(pattern)] = 0
                 # data_table[self.pattern_prefix + self.to_string(pattern)][times] = 1
