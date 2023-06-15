@@ -43,7 +43,8 @@ class VisualizeDataset:
     def plot_dataset(self, data_table, columns, match='like', display='line'):
         names = list(data_table.columns)
 
-        data_table.reset_index(inplace=True)
+        # data_table.reset_index(inplace=True)
+        data_table['_idx'] = range(len(data_table))
 
         # Create subplots if more columns are specified.
         if len(columns) > 1:
@@ -85,10 +86,10 @@ class VisualizeDataset:
 
                 # Display point, or as a line
                 if display[i] == 'points':
-                    xar[i].plot(data_table.index[mask], data_table[relevant_cols[j]][mask],
+                    xar[i].plot(data_table['_idx'][mask], data_table[relevant_cols[j]][mask],
                                 self.point_displays[j % len(self.point_displays)])
                 else:
-                    xar[i].plot(data_table.index[mask], data_table[relevant_cols[j]][mask],
+                    xar[i].plot(data_table['_idx'][mask], data_table[relevant_cols[j]][mask],
                                 self.line_displays[j % len(self.line_displays)])
 
             xar[i].tick_params(axis='y', labelsize=10)
@@ -98,6 +99,7 @@ class VisualizeDataset:
             xar[i].set_ylim([min(min_values) - 0.1 * (max(max_values) - min(min_values)),
                              max(max_values) + 0.1 * (max(max_values) - min(min_values))])
 
+        data_table.drop(columns='_idx', inplace=True)
         # Make sure we get a nice figure with only a single x-axis and labels there.
         plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
         plt.xlabel('index')

@@ -48,6 +48,7 @@ def main():
     milliseconds_per_instance = (dataset.index[1] - dataset.index[0]).microseconds / 1000
 
     dataset = dataset.sort_index()
+    # print(dataset.head())
 
     NumAbs = NumericalAbstraction()
     FreqAbs = FourierTransformation()
@@ -98,6 +99,7 @@ def main():
 
         CatAbs = CategoricalAbstraction()
 
+        print(dataset.head())
         dataset = CatAbs.abstract_categorical(dataset, ['label'], ['like'], 0.03,
                                               int(float(5 * 60000) / milliseconds_per_instance), 2)
 
@@ -119,6 +121,7 @@ def main():
         skip_points = int((1 - window_overlap) * ws)
         dataset = dataset.iloc[::skip_points, :]
 
+        print(dataset.head())
         dataset.to_csv(DATA_PATH / RESULT_FNAME)
 
         DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'mag_x', 'mic_dBFS',
