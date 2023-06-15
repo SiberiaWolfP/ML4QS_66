@@ -135,7 +135,7 @@ def main():
             window_data = dataset.iloc[i:i + window_size]
             window_features = {}
             for col in periodic_predictor_cols:
-                col_features = NumAbs.compute_new_features_for_window(window_data[col])
+                col_features = NumAbs.compute_new_features_for_window(window_data[col], periodic_predictor_cols)
                 col_features = {f'{col}_{key}': value for key, value in col_features.items()}
                 window_features.update(col_features)
             features_df = features_df.append(window_features, ignore_index=True)
