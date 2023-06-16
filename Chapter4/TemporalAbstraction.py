@@ -73,12 +73,15 @@ class NumericalAbstraction:
 
         return data_table
 
-    def compute_new_features_for_window(self, data, original_predicted_cols):
+    def compute_diff_shift_features_for_window(self, data, original_predicted_cols):
         for col in original_predicted_cols:
             data[col + '_diff_1'] = data[col].diff()
             data[col + '_diff_2'] = data[col].diff().diff()
             data[col + 'shift_1'] = data[col].shift(1)
             data[col + 'shift_2'] = data[col].shift(2)
+        return data
+
+    def compute_new_features_for_window(self, data):
 
         features = {}
         data = data.values  # 将pandas Series转换为numpy数组

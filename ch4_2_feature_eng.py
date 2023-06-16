@@ -5,6 +5,8 @@ import time
 from pathlib import Path
 import argparse
 import pandas as pd
+from tqdm import tqdm
+
 if GPU is True:
     import cudf as cd
 
@@ -48,8 +50,6 @@ def main():
     # Compute the number of milliseconds covered by an instance based on the first two rows
     milliseconds_per_instance = (dataset.index[1] - dataset.index[0]).microseconds / 1000
 
-    print(dataset.index[1])
-    print(dataset.index[0])
     dataset = dataset.sort_index()
     # print(dataset.head())
 
@@ -127,21 +127,11 @@ def main():
 
         print(len(dataset))
 
-        window_size = 10
-        features_df = pd.DataFrame()
-
-        # 每个窗口特征提取
-        for i in range(0, dataset.shape[0] - window_size + 1):
-            window_data = dataset.iloc[i:i + window_size]
-            window_features = {}
-            for col in periodic_predictor_cols:
-                col_features = NumAbs.compute_new_features_for_window(window_data[col], periodic_predictor_cols)
-                col_features = {f'{col}_{key}': value for key, value in col_features.items()}
-                window_features.update(col_features)
-            features_df = features_df.append(window_features, ignore_index=True)
 
         features_df.index = range(window_size - 1, dataset.shape[0])
         dataset = pd.concat([dataset, features_df], axis=1)
+
+        # dataset = NumAbs.compute_diff_shift_features_for_window(dataset, periodic_predictor_cols)
 
         dataset.to_csv(DATA_PATH / RESULT_FNAME)
 
