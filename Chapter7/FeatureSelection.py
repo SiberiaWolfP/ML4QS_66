@@ -8,12 +8,42 @@ import sys
 import copy
 from operator import itemgetter
 import numpy as np
+import pandas as pd
+from sklearn.feature_selection import RFE, f_classif, f_regression, SelectKBest
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+import xgboost as xgb
+
 if GPU:
     import cupy as cp
 
 
 # Specifies feature selection approaches for classification to identify the most important features.
 class FeatureSelectionClassification:
+
+    # Filter method.
+    def filter_method(self, max_features, X_train, y_train):
+        selector = SelectKBest(f_classif, k=max_features)
+        selector.fit(X_train, y_train)
+        return X_train.columns[selector.get_support(indices=True)].tolist()
+
+    # Wrapper method.
+    def wrapper_method(self, max_features, X_train, y_train):
+        # Use RFE with a DecisionTreeClassifier
+        estimator = DecisionTreeClassifier()
+        selector = RFE(estimator, n_features_to_select=max_features, step=1)
+        selector.fit(X_train, y_train)
+        return X_train.columns[selector.get_support(indices=True)].tolist()
+
+    # Embedded method.
+    def embedded_method(self, max_features, X_train, y_train):
+        model = xgb.XGBClassifier(use_label_encoder=False, eval_metric='mlogloss')
+        model.fit(X_train, y_train)
+
+        importance = model.feature_importances_
+        feature_importances = pd.Series(importance, index=X_train.columns)
+        selected_features = feature_importances.nlargest(max_features).index
+
+        return selected_features.tolist()
 
     # Forward selection for classification which selects a pre-defined number of features (max_features)
     # that show the best accuracy. We assume a decision tree learning for this purpose, but

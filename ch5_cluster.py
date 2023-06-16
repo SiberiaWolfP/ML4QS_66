@@ -127,10 +127,12 @@ def main():
         # And we select the outcome dataset of the knn clustering....
         clusteringNH = NonHierarchicalClustering()
 
-        dataset = clusteringNH.k_means_over_instances(dataset, ['acc_x', 'acc_y', 'acc_z'], FLAGS.k, 'default', 50, 50)
-        DataViz.plot_clusters_3d(dataset, ['acc_x', 'acc_y', 'acc_z'], 'cluster', ['label'])
+        cols_to_cluster = ['gyr_z', 'gyr_y', 'gyr_x']
+
+        dataset = clusteringNH.k_means_over_instances(dataset, cols_to_cluster, FLAGS.k, 'default', 50, 50)
+        DataViz.plot_clusters_3d(dataset, cols_to_cluster, 'cluster', ['label'])
         DataViz.plot_silhouette(dataset, 'cluster', 'silhouette')
-        util.print_latex_statistics_clusters(dataset, 'cluster', ['acc_x', 'acc_y', 'acc_z'], 'label')
+        util.print_latex_statistics_clusters(dataset, 'cluster', cols_to_cluster, 'label')
         del dataset['silhouette']
 
         dataset.to_csv(DATA_PATH / RESULT_FNAME)
