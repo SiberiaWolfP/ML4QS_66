@@ -77,8 +77,8 @@ class NumericalAbstraction:
         for col in original_predicted_cols:
             data[col + '_diff_1'] = data[col].diff()
             data[col + '_diff_2'] = data[col].diff().diff()
-            data[col + 'shift_1'] = data[col].shift(1)
-            data[col + 'shift_2'] = data[col].shift(2)
+            data[col + '_shift_1'] = data[col].shift(1)
+            data[col + '_shift_2'] = data[col].shift(2)
         return data
 
     def compute_new_features_for_window(self, data):
@@ -236,6 +236,7 @@ class CategoricalAbstraction:
                                                               window_size)
         selected_patterns.extend(one_patterns)
         print(f'Number of patterns of size 1 is {len(one_patterns)}')
+        print(one_patterns)
 
         k = 1
         k_patterns = one_patterns
@@ -248,5 +249,6 @@ class CategoricalAbstraction:
                                                                              min_support, window_size)
             selected_patterns.extend(selected_new_k_patterns)
             print(f'Number of patterns of size {k} is {len(selected_new_k_patterns)}')
+            print(selected_new_k_patterns)
 
         return new_data_table

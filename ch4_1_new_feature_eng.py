@@ -11,14 +11,13 @@ from Chapter4.TemporalAbstraction import NumericalAbstraction
 from Chapter4.TemporalAbstraction import CategoricalAbstraction
 from Chapter4.FrequencyAbstraction import FourierTransformation
 
-df = pd.read_csv('./datasets/intermediate/after_transform/ch3_after_pca.csv')
 
 window_size = 10
 features_df = pd.DataFrame()
 
 DATA_PATH = Path('./datasets/intermediate/')
 DATASET_FNAME = 'after_transform/ch3_after_pca.csv'
-RESULT_FNAME = 'chapter4_result.csv'
+RESULT_FNAME = 'chapter4_result_1.csv'
 
 NumAbs = NumericalAbstraction()
 
@@ -49,4 +48,5 @@ features_df.index = range(window_size - 1, dataset.shape[0])
 dataset = pd.concat([dataset, features_df], axis=1)
 
 dataset = NumAbs.compute_diff_shift_features_for_window(dataset, periodic_predictor_cols)
+
 dataset.to_csv(DATA_PATH / RESULT_FNAME)

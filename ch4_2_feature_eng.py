@@ -18,7 +18,7 @@ from Chapter4.TextAbstraction import TextAbstraction
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
 DATA_PATH = Path('./datasets/intermediate/')
-DATASET_FNAME = 'after_transform/ch3_after_pca.csv'
+DATASET_FNAME = 'chapter4_result_1.csv'
 # DATASET_FNAME = 'after_impute_missing_values/ch3_2_after_missing_values_imputation.csv'
 RESULT_FNAME = 'chapter4_result.csv'
 
@@ -126,12 +126,6 @@ def main():
         dataset = dataset.iloc[::skip_points, :]
 
         print(len(dataset))
-
-
-        features_df.index = range(window_size - 1, dataset.shape[0])
-        dataset = pd.concat([dataset, features_df], axis=1)
-
-        # dataset = NumAbs.compute_diff_shift_features_for_window(dataset, periodic_predictor_cols)
 
         dataset.to_csv(DATA_PATH / RESULT_FNAME)
 
