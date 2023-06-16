@@ -1,10 +1,6 @@
 from util.common import GPU
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
-from sklearn.svm import SVC
-from sklearn.svm import LinearSVC
-from sklearn.svm import SVR
-from sklearn.svm import LinearSVR
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeClassifier
@@ -18,10 +14,17 @@ import os
 import pandas as pd
 import numpy as np
 from Chapter7.MyMLPClassifier import MyMLPClassifier
-
 if GPU:
     import cudf as cd
     import cupy as cp
+    import cuml as cm
+from sklearnex import patch_sklearn, config_context
+patch_sklearn()
+from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
+from sklearn.svm import SVR
+from sklearn.svm import LinearSVR
+
 
 
 class ClassificationAlgorithms:
@@ -48,7 +51,7 @@ class ClassificationAlgorithms:
             # nn = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation, max_iter=max_iter,
             #                    learning_rate=learning_rate, alpha=alpha, random_state=42)
             nn = MyMLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation, max_iter=max_iter,
-                                 learning_rate=learning_rate, alpha=alpha, random_state=42, verbose=False, early_stopping=True)
+                                 learning_rate=learning_rate, alpha=alpha, random_state=42, verbose=True, early_stopping=True)
 
         # Fit the model
         # if GPU:
@@ -88,9 +91,8 @@ class ClassificationAlgorithms:
                                  'C': [1, 10, 100]}]
             svm = GridSearchCV(SVC(probability=True), tuned_parameters, cv=5, scoring='accuracy')
         else:
-            svm = SVC(C=C, kernel=kernel, gamma=gamma, probability=True, cache_size=7000)
+            svm = SVC(C=C, kernel=kernel, gamma=gamma, probability=True, cache_size=100)
 
-        # Fit the model
         svm.fit(train_X, train_y.values.ravel())
 
         if gridsearch and print_model_details:
@@ -98,7 +100,6 @@ class ClassificationAlgorithms:
 
         if gridsearch:
             svm = svm.best_estimator_
-
         # Apply the model
         pred_prob_training_y = svm.predict_proba(train_X)
         pred_prob_test_y = svm.predict_proba(test_X)
@@ -120,8 +121,14 @@ class ClassificationAlgorithms:
         if gridsearch:
             tuned_parameters = [{'max_iter': [1000, 2000], 'tol': [1e-3, 1e-4],
                                  'C': [1, 10, 100]}]
+            # if GPU:
+            #     svm = GridSearchCV(cm.LinearSVC(), tuned_parameters, cv=5, scoring='accuracy')
+            # else:
             svm = GridSearchCV(LinearSVC(), tuned_parameters, cv=5, scoring='accuracy')
         else:
+            # if GPU:
+            #     svm = cm.LinearSVC(C=C, tol=tol, max_iter=max_iter)
+            # else:
             svm = LinearSVC(C=C, tol=tol, max_iter=max_iter)
 
         # Fit the model
@@ -156,9 +163,15 @@ class ClassificationAlgorithms:
         # Create the model
         if gridsearch:
             tuned_parameters = [{'n_neighbors': [1, 2, 5, 10]}]
-            knn = GridSearchCV(KNeighborsClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            if GPU:
+                knn = GridSearchCV(cm.KNeighborsClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            else:
+                knn = GridSearchCV(KNeighborsClassifier(), tuned_parameters, cv=5, scoring='accuracy')
         else:
-            knn = KNeighborsClassifier(n_neighbors=n_neighbors)
+            if GPU:
+                knn = cm.KNeighborsClassifier(n_neighbors=n_neighbors)
+            else:
+                knn = KNeighborsClassifier(n_neighbors=n_neighbors)
 
         # Fit the model
         knn.fit(train_X, train_y.values.ravel())
@@ -235,7 +248,10 @@ class ClassificationAlgorithms:
     # probabilities associated with each class, each class being represented as a column in the data frame.
     def naive_bayes(self, train_X, train_y, test_X):
         # Create the model
-        nb = GaussianNB()
+        if GPU:
+            nb = cm.GaussianNB()
+        else:
+            nb = GaussianNB()
 
         train_y = train_y.values.ravel()
         # Fit the model
@@ -262,13 +278,24 @@ class ClassificationAlgorithms:
                       print_model_details=False, gridsearch=True):
 
         if gridsearch:
-            tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
-                                 'n_estimators': [10, 50, 100],
-                                 'criterion': ['gini', 'entropy']}]
-            rf = GridSearchCV(RandomForestClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            if GPU:
+                # split_criterion: 0 for gini, 1 for entropy
+                tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
+                                     'n_estimators': [10, 50, 100],
+                                     'split_criterion': [0, 1]}]
+                rf = GridSearchCV(cm.RandomForestClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            else:
+                tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
+                                     'n_estimators': [10, 50, 100],
+                                     'criterion': ['gini', 'entropy']}]
+                rf = GridSearchCV(RandomForestClassifier(), tuned_parameters, cv=5, scoring='accuracy')
         else:
-            rf = RandomForestClassifier(n_estimators=n_estimators, min_samples_leaf=min_samples_leaf,
-                                        criterion=criterion)
+            if GPU:
+                rf = cm.RandomForestClassifier(n_estimators=n_estimators, min_samples_leaf=min_samples_leaf,
+                                               split_criterion=criterion)
+            else:
+                rf = RandomForestClassifier(n_estimators=n_estimators, min_samples_leaf=min_samples_leaf,
+                                            criterion=criterion)
 
         # Fit the model
 
@@ -284,8 +311,14 @@ class ClassificationAlgorithms:
         pred_prob_test_y = rf.predict_proba(test_X)
         pred_training_y = rf.predict(train_X)
         pred_test_y = rf.predict(test_X)
-        frame_prob_training_y = pd.DataFrame(pred_prob_training_y, columns=rf.classes_)
-        frame_prob_test_y = pd.DataFrame(pred_prob_test_y, columns=rf.classes_)
+        if GPU:
+            frame_prob_training_y = cd.DataFrame(pred_prob_training_y, columns=rf.classes_)
+            frame_prob_test_y = cd.DataFrame(pred_prob_test_y, columns=rf.classes_)
+            pred_training_y = pred_training_y.to_numpy()
+            pred_test_y = pred_test_y.to_numpy()
+        else:
+            frame_prob_training_y = pd.DataFrame(pred_prob_training_y, columns=rf.classes_)
+            frame_prob_test_y = pd.DataFrame(pred_prob_test_y, columns=rf.classes_)
 
         if print_model_details:
             ordered_indices = [i[0] for i in

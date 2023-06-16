@@ -107,10 +107,8 @@ class MyMLPClassifier(BaseEstimator, ClassifierMixin):
 
         best_val_loss = float('inf')
         no_improvement_count = 0
-        # Early stopping
-        if self.early_stopping:
-            X, X_val, y, y_val = train_test_split(X, y, test_size=self.validation_fraction,
-                                                  random_state=self.random_state, stratify=y.cpu().numpy())
+        X, X_val, y, y_val = train_test_split(X, y, test_size=self.validation_fraction,
+                                              random_state=self.random_state, stratify=y.cpu().numpy())
 
         for epoch in range(self.max_iter):
             permutation = torch.randperm(X.size()[0])
@@ -123,7 +121,7 @@ class MyMLPClassifier(BaseEstimator, ClassifierMixin):
                 loss.backward()
                 self.optimizer.step()
 
-            if self.early_stopping:
+            if self.validation_fraction > 0:
                 val_outputs = self.model(X_val)
                 val_loss = self.loss_fn(val_outputs, y_val)
                 if self.verbose:
@@ -135,9 +133,6 @@ class MyMLPClassifier(BaseEstimator, ClassifierMixin):
                     no_improvement_count += 1
 
                 if no_improvement_count >= self.n_iter_no_change:
-                    if self.verbose:
-                        print(
-                            f"Validation loss did not improve more than tol={self.tol} for {self.n_iter_no_change} consecutive epochs. Stopping.")
                     if self.learning_rate == 'adaptive':
                         self.scheduler.step(val_loss)
                         if self.verbose:
@@ -147,9 +142,13 @@ class MyMLPClassifier(BaseEstimator, ClassifierMixin):
                                 print("Learning rate too small. Stopping.")
                             break
                     else:
+                        if self.verbose:
+                            print(
+                                f"Validation loss did not improve more than tol={self.tol} for {self.n_iter_no_change}"
+                                f" consecutive epochs. Stopping.")
                         break
-            else:
-                self.scheduler.step()
+            # else:
+                # self.scheduler.step()
 
             if self.verbose:
                 print(f'Epoch: {epoch + 1}, Loss: {loss.item():.4f}')
@@ -175,7 +174,24 @@ class MyMLPClassifier(BaseEstimator, ClassifierMixin):
         return accuracy_score(y.cpu().numpy(), y_pred)
 
     def get_params(self, deep=True):
-        return {**self.__dict__}
+        return {
+            'hidden_layer_sizes': self.hidden_layer_sizes,
+            'activation': self.activation,
+            'solver': self.solver,
+            'alpha': self.alpha,
+            'batch_size': self.batch_size,
+            'learning_rate': self.learning_rate,
+            'learning_rate_init': self.learning_rate_init,
+            'max_iter': self.max_iter,
+            'early_stopping': self.early_stopping,
+            'power_t': self.power_t,
+            'validation_fraction': self.validation_fraction,
+            'n_iter_no_change': self.n_iter_no_change,
+            'tol': self.tol,
+            'random_state': self.random_state,
+            'verbose': self.verbose,
+            'warm_start': self.warm_start
+        }
 
     def set_params(self, **parameters):
         for parameter, value in parameters.items():

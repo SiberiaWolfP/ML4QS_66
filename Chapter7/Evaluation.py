@@ -7,6 +7,7 @@ import numpy as np
 if GPU:
     import cudf as cd
     import cupy as cp
+    from cuml import metrics as cumetrics
 
 
 # Class for evaluation metrics of classification problems.
@@ -14,9 +15,14 @@ class ClassificationEvaluation:
 
     # Returns the accuracy given the true and predicted values.
     def accuracy(self, y_true, y_pred):
-        if isinstance(y_true, pd.DataFrame):
-            y_true = y_true.values.ravel()
-        return metrics.accuracy_score(y_true, y_pred)
+        if GPU:
+            if isinstance(y_true, cd.DataFrame):
+                y_true = y_true.to_cupy()
+            return cumetrics.accuracy_score(y_true, y_pred)
+        else:
+            if isinstance(y_true, pd.DataFrame):
+                y_true = y_true.to_numpy()
+            return metrics.accuracy_score(y_true, y_pred)
 
     # Returns the precision given the true and predicted values.
     # Note that it returns the precision per class.

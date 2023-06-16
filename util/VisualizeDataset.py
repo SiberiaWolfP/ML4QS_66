@@ -9,7 +9,7 @@ import matplotlib as mpl
 
 import numpy as np
 
-mpl.use('tkagg')
+# mpl.use('tkagg')
 
 
 class VisualizeDataset:
