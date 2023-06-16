@@ -16,6 +16,7 @@ class PrepareDatasetForLearning:
     default_label = 'undefined'
     class_col = 'class'
     person_col = 'person'
+    label_idx = {}
 
     # This function creates a single class column based on a set of binary class columns.
     # it essentially merges them. It removes the old label columns.
@@ -26,6 +27,8 @@ class PrepareDatasetForLearning:
         for i in range(0, len(class_labels)):
             labels.extend([name for name in list(dataset.columns) if class_labels[i] == name[0:len(class_labels[i])]])
 
+        # for idx, label in enumerate(labels):
+        #     self.label_idx[label] = int(idx)
         # Determine how many class values are label as 'true' in our class columns.
         sum_values = dataset[labels].sum(axis=1)
         # Create a new 'class' column and set the value to the default class.
@@ -35,6 +38,7 @@ class PrepareDatasetForLearning:
             # otherwise we keep the default class.
             if sum_values[i] == 1:
                 dataset.iloc[i, dataset.columns.get_loc(self.class_col)] = dataset[labels].iloc[i].idxmax()
+                # dataset.iloc[i, dataset.columns.get_loc(self.class_col)] = dataset[labels].iloc[i].idxmax()
         # And remove our old binary columns.
         dataset = dataset.drop(labels, axis=1)
         return dataset

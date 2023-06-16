@@ -1,3 +1,5 @@
+import pandas as pd
+
 from util.common import GPU
 from sklearn import metrics
 import math
@@ -12,6 +14,8 @@ class ClassificationEvaluation:
 
     # Returns the accuracy given the true and predicted values.
     def accuracy(self, y_true, y_pred):
+        if isinstance(y_true, pd.DataFrame):
+            y_true = y_true.values.ravel()
         return metrics.accuracy_score(y_true, y_pred)
 
     # Returns the precision given the true and predicted values.

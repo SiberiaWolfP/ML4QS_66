@@ -1,3 +1,5 @@
+from sklearn.utils.multiclass import type_of_target
+
 from util.common import GPU
 import os
 import copy
@@ -24,6 +26,7 @@ from Chapter7.FeatureSelection import FeatureSelectionClassification
 from Chapter7.FeatureSelection import FeatureSelectionRegression
 from util import util
 from util.VisualizeDataset import VisualizeDataset
+from sklearn.preprocessing import LabelEncoder
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
 DATA_PATH = Path('./datasets/intermediate/')
@@ -56,10 +59,18 @@ prepare = PrepareDatasetForLearning()
 print('Splitting dataset into 70%-30%...')
 train_X, test_X, train_y, test_y = prepare.split_single_dataset_classification(dataset, ['label'], 'like', 0.7,
                                                                                filter=True, temporal=False)
+
+# Convert string-based labels to numerical labels.
+le = LabelEncoder()
+le.fit(train_y['class'].unique())
+train_y['class'] = le.transform(train_y['class'])
+test_y['class'] = le.transform(test_y['class'])
+# train_y = train_y['class'].ravel().astype(np.int32)
+# test_y = test_y['class'].ravel().astype(np.int32)
 print('Splitting done...')
 
-print('Training set length is: ', len(train_X.index))
-print('Test set length is: ', len(test_X.index))
+print('Training set length is: ', len(train_X))
+print('Test set length is: ', len(test_X))
 
 # Select subsets of the features that we will consider:
 
@@ -85,17 +96,17 @@ features_after_chapter_5 = list(
 
 fs = FeatureSelectionClassification()
 
-print('Running feature selection based on %s variables...' % len(features_after_chapter_5))
-features, ordered_features, ordered_scores = fs.forward_selection(N_FORWARD_SELECTION,
-                                                                  train_X[features_after_chapter_5],
-                                                                  test_X[features_after_chapter_5],
-                                                                  train_y,
-                                                                  test_y,
-                                                                  gridsearch=False)
-print('Feature selection done...')
-
-DataViz.plot_xy(x=[range(1, N_FORWARD_SELECTION + 1)], y=[ordered_scores],
-                xlabel='number of features', ylabel='accuracy')
+# print('Running feature selection based on %s variables...' % len(features_after_chapter_5))
+# features, ordered_features, ordered_scores = fs.forward_selection(N_FORWARD_SELECTION,
+#                                                                   train_X[features_after_chapter_5],
+#                                                                   test_X[features_after_chapter_5],
+#                                                                   train_y,
+#                                                                   test_y,
+#                                                                   gridsearch=False)
+# print('Feature selection done...')
+#
+# DataViz.plot_xy(x=[range(1, N_FORWARD_SELECTION + 1)], y=[ordered_scores],
+#                 xlabel='number of features', ylabel='accuracy')
 
 # based on python2 features, slightly different.
 selected_features = ['acc_phone_y_freq_0.0_Hz_ws_40', 'press_phone_pressure_temp_mean_ws_120',
@@ -120,18 +131,19 @@ for reg_param in reg_parameters:
     performance_tr = 0
     performance_te = 0
     for i in range(0, N_REPEATS_NN):
+        print("Regularization study training: %f/%d..." % (reg_param, i + 1))
         class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.feedforward_neural_network(
             train_X, train_y,
             test_X, hidden_layer_sizes=(250,), alpha=reg_param, max_iter=500,
             gridsearch=False
         )
-
         performance_tr += eval.accuracy(train_y, class_train_y)
         performance_te += eval.accuracy(test_y, class_test_y)
+        print("Performance metrics: accuracy train/test: %f/%f" % (performance_tr, performance_te))
     performance_training.append(performance_tr / N_REPEATS_NN)
     performance_test.append(performance_te / N_REPEATS_NN)
 DataViz.plot_xy(x=[reg_parameters, reg_parameters], y=[performance_training, performance_test], method='semilogx',
-                xlabel='regularization parameter value', ylabel='accuracy', ylim=[0.95, 1.01],
+                xlabel='regularization parameter value', ylabel='accuracy', ylim=[0.8, 1.01],
                 names=['training', 'test'], line_styles=['r-', 'b:'])
 
 # Second, let us consider the influence of certain parameter settings for the tree model. (very related to the

@@ -17,6 +17,7 @@ from sklearn.model_selection import GridSearchCV
 import os
 import pandas as pd
 import numpy as np
+from Chapter7.MyMLPClassifier import MyMLPClassifier
 
 if GPU:
     import cudf as cd
@@ -41,14 +42,21 @@ class ClassificationAlgorithms:
             tuned_parameters = [{'hidden_layer_sizes': [(5,), (10,), (25,), (100,), (100, 5,), (100, 10,), ],
                                  'activation': [activation],
                                  'learning_rate': [learning_rate], 'max_iter': [2000, 3000], 'alpha': [alpha]}]
-            nn = GridSearchCV(MLPClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            nn = GridSearchCV(MyMLPClassifier(), tuned_parameters, cv=5, scoring='accuracy')
         else:
             # Create the model
-            nn = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation, max_iter=max_iter,
-                               learning_rate=learning_rate, alpha=alpha, random_state=42)
+            # nn = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation, max_iter=max_iter,
+            #                    learning_rate=learning_rate, alpha=alpha, random_state=42)
+            nn = MyMLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation, max_iter=max_iter,
+                                 learning_rate=learning_rate, alpha=alpha, random_state=42, verbose=False, early_stopping=True)
 
         # Fit the model
-        nn.fit(train_X, train_y.values.ravel())
+        # if GPU:
+        #     train_X_g = cd.DataFrame.from_pandas(train_X)
+        #     train_y_g = cd.DataFrame.from_pandas(train_y)
+        #     nn.fit(train_X_g.to_cupy(), train_y_g.to_cupy())
+        # else:
+        nn.fit(train_X, train_y)
 
         if gridsearch and print_model_details:
             print(nn.best_params_)
@@ -61,8 +69,8 @@ class ClassificationAlgorithms:
         pred_prob_test_y = nn.predict_proba(test_X)
         pred_training_y = nn.predict(train_X)
         pred_test_y = nn.predict(test_X)
-        frame_prob_training_y = pd.DataFrame(pred_prob_training_y, columns=nn.classes_)
-        frame_prob_test_y = pd.DataFrame(pred_prob_test_y, columns=nn.classes_)
+        frame_prob_training_y = pd.DataFrame(pred_prob_training_y, columns=nn.classes_.cpu().numpy())
+        frame_prob_test_y = pd.DataFrame(pred_prob_test_y, columns=nn.classes_.cpu().numpy())
 
         return pred_training_y, pred_test_y, frame_prob_training_y, frame_prob_test_y
 
@@ -190,7 +198,7 @@ class ClassificationAlgorithms:
             dtree = DecisionTreeClassifier(min_samples_leaf=min_samples_leaf, criterion=criterion)
 
         # Fit the model
-        dtree.fit(train_X, train_y.values.ravel())
+        dtree.fit(train_X, train_y)
 
         if gridsearch and print_model_details:
             print(dtree.best_params_)
