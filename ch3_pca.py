@@ -3,9 +3,9 @@ from util.VisualizeDataset import VisualizeDataset
 import pandas as pd
 import copy
 
-raw_file = 'datasets/intermediate/after_impute_missing_values/ch3_2_after_missing_values_imputation.csv'  # gets current directory
-data_folder = 'datasets/intermediate/after_impute_missing_values/'
-result_folder = 'datasets/intermediate/after_transform/'
+raw_file = 'datasets/intermediate/ch3_2_after_missing_values_imputation.csv'  # gets current directory
+data_folder = 'datasets/intermediate/'
+result_folder = 'datasets/intermediate/'
 result_file_name = 'ch3_after_pca.csv'
 
 dataset = pd.read_csv(raw_file)

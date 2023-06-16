@@ -1,5 +1,6 @@
+import cupy
+
 from util.common import GPU
-from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import KNeighborsRegressor
@@ -9,22 +10,27 @@ from sklearn import tree
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import GridSearchCV
+# from sklearn.model_selection import GridSearchCV
+from dask.distributed import Client, LocalCluster
+from dask_ml.model_selection import GridSearchCV as DaskGridSearchCV
+from sklearn.model_selection import GridSearchCV as SklearnGridSearchCV
 import os
 import pandas as pd
 import numpy as np
 from Chapter7.MyMLPClassifier import MyMLPClassifier
+from Chapter7.MyRandomForestClassifier import MyRandomForestClassifier
+
 if GPU:
     import cudf as cd
     import cupy as cp
     import cuml as cm
 from sklearnex import patch_sklearn, config_context
+
 patch_sklearn()
 from sklearn.svm import SVC
 from sklearn.svm import LinearSVC
 from sklearn.svm import SVR
 from sklearn.svm import LinearSVR
-
 
 
 class ClassificationAlgorithms:
@@ -45,13 +51,14 @@ class ClassificationAlgorithms:
             tuned_parameters = [{'hidden_layer_sizes': [(5,), (10,), (25,), (100,), (100, 5,), (100, 10,), ],
                                  'activation': [activation],
                                  'learning_rate': [learning_rate], 'max_iter': [2000, 3000], 'alpha': [alpha]}]
-            nn = GridSearchCV(MyMLPClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            nn = SklearnGridSearchCV(MyMLPClassifier(), tuned_parameters, cv=5, scoring='accuracy')
         else:
             # Create the model
             # nn = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation, max_iter=max_iter,
             #                    learning_rate=learning_rate, alpha=alpha, random_state=42)
             nn = MyMLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation, max_iter=max_iter,
-                                 learning_rate=learning_rate, alpha=alpha, random_state=42, verbose=True, early_stopping=True)
+                                 learning_rate=learning_rate, alpha=alpha, random_state=42, verbose=True,
+                                 early_stopping=True)
 
         # Fit the model
         # if GPU:
@@ -59,7 +66,7 @@ class ClassificationAlgorithms:
         #     train_y_g = cd.DataFrame.from_pandas(train_y)
         #     nn.fit(train_X_g.to_cupy(), train_y_g.to_cupy())
         # else:
-        nn.fit(train_X, train_y)
+        nn.fit(train_X, train_y.to_numpy())
 
         if gridsearch and print_model_details:
             print(nn.best_params_)
@@ -68,14 +75,14 @@ class ClassificationAlgorithms:
             nn = nn.best_estimator_
 
         # Apply the model
-        pred_prob_training_y = nn.predict_proba(train_X)
-        pred_prob_test_y = nn.predict_proba(test_X)
+        # pred_prob_training_y = nn.predict_proba(train_X)
+        # pred_prob_test_y = nn.predict_proba(test_X)
         pred_training_y = nn.predict(train_X)
         pred_test_y = nn.predict(test_X)
-        frame_prob_training_y = pd.DataFrame(pred_prob_training_y, columns=nn.classes_.cpu().numpy())
-        frame_prob_test_y = pd.DataFrame(pred_prob_test_y, columns=nn.classes_.cpu().numpy())
+        # frame_prob_training_y = pd.DataFrame(pred_prob_training_y, columns=nn.classes_.cpu().numpy())
+        # frame_prob_test_y = pd.DataFrame(pred_prob_test_y, columns=nn.classes_.cpu().numpy())
 
-        return pred_training_y, pred_test_y, frame_prob_training_y, frame_prob_test_y
+        return pred_training_y, pred_test_y
 
     # Apply a support vector machine for classification upon the training data (with the specified value for
     # C, epsilon and the kernel function), and use the created model to predict the outcome for both the
@@ -89,7 +96,7 @@ class ClassificationAlgorithms:
         if gridsearch:
             tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
                                  'C': [1, 10, 100]}]
-            svm = GridSearchCV(SVC(probability=True), tuned_parameters, cv=5, scoring='accuracy')
+            svm = SklearnGridSearchCV(SVC(probability=True), tuned_parameters, cv=5, scoring='accuracy')
         else:
             svm = SVC(C=C, kernel=kernel, gamma=gamma, probability=True, cache_size=100)
 
@@ -101,14 +108,10 @@ class ClassificationAlgorithms:
         if gridsearch:
             svm = svm.best_estimator_
         # Apply the model
-        pred_prob_training_y = svm.predict_proba(train_X)
-        pred_prob_test_y = svm.predict_proba(test_X)
         pred_training_y = svm.predict(train_X)
         pred_test_y = svm.predict(test_X)
-        frame_prob_training_y = pd.DataFrame(pred_prob_training_y, columns=svm.classes_)
-        frame_prob_test_y = pd.DataFrame(pred_prob_test_y, columns=svm.classes_)
 
-        return pred_training_y, pred_test_y, frame_prob_training_y, frame_prob_test_y
+        return pred_training_y, pred_test_y
 
     # Apply a support vector machine for classification upon the training data (with the specified value for
     # C, epsilon and the kernel function), and use the created model to predict the outcome for both the
@@ -124,7 +127,7 @@ class ClassificationAlgorithms:
             # if GPU:
             #     svm = GridSearchCV(cm.LinearSVC(), tuned_parameters, cv=5, scoring='accuracy')
             # else:
-            svm = GridSearchCV(LinearSVC(), tuned_parameters, cv=5, scoring='accuracy')
+            svm = SklearnGridSearchCV(LinearSVC(), tuned_parameters, cv=5, scoring='accuracy')
         else:
             # if GPU:
             #     svm = cm.LinearSVC(C=C, tol=tol, max_iter=max_iter)
@@ -164,9 +167,9 @@ class ClassificationAlgorithms:
         if gridsearch:
             tuned_parameters = [{'n_neighbors': [1, 2, 5, 10]}]
             if GPU:
-                knn = GridSearchCV(cm.KNeighborsClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+                knn = SklearnGridSearchCV(cm.KNeighborsClassifier(), tuned_parameters, cv=5, scoring='accuracy')
             else:
-                knn = GridSearchCV(KNeighborsClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+                knn = SklearnGridSearchCV(KNeighborsClassifier(), tuned_parameters, cv=5, scoring='accuracy')
         else:
             if GPU:
                 knn = cm.KNeighborsClassifier(n_neighbors=n_neighbors)
@@ -206,7 +209,7 @@ class ClassificationAlgorithms:
         if gridsearch:
             tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
                                  'criterion': ['gini', 'entropy']}]
-            dtree = GridSearchCV(DecisionTreeClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            dtree = SklearnGridSearchCV(DecisionTreeClassifier(), tuned_parameters, cv=5, scoring='accuracy')
         else:
             dtree = DecisionTreeClassifier(min_samples_leaf=min_samples_leaf, criterion=criterion)
 
@@ -220,12 +223,8 @@ class ClassificationAlgorithms:
             dtree = dtree.best_estimator_
 
         # Apply the model
-        pred_prob_training_y = dtree.predict_proba(train_X)
-        pred_prob_test_y = dtree.predict_proba(test_X)
         pred_training_y = dtree.predict(train_X)
         pred_test_y = dtree.predict(test_X)
-        frame_prob_training_y = pd.DataFrame(pred_prob_training_y, columns=dtree.classes_)
-        frame_prob_test_y = pd.DataFrame(pred_prob_test_y, columns=dtree.classes_)
 
         if print_model_details:
             ordered_indices = [i[0] for i in
@@ -240,7 +239,7 @@ class ClassificationAlgorithms:
             tree.export_graphviz(dtree, out_file=str(export_tree_path) + '/' + export_tree_name,
                                  feature_names=train_X.columns, class_names=dtree.classes_)
 
-        return pred_training_y, pred_test_y, frame_prob_training_y, frame_prob_test_y
+        return pred_training_y, pred_test_y
 
     # Apply a naive bayes approach for classification upon the training data
     # and use the created model to predict the outcome for both the
@@ -283,22 +282,22 @@ class ClassificationAlgorithms:
                 tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
                                      'n_estimators': [10, 50, 100],
                                      'split_criterion': [0, 1]}]
-                rf = GridSearchCV(cm.RandomForestClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+
+                rf = SklearnGridSearchCV(cm.RandomForestClassifier(), tuned_parameters, cv=5, scoring='accuracy')
             else:
                 tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
                                      'n_estimators': [10, 50, 100],
                                      'criterion': ['gini', 'entropy']}]
-                rf = GridSearchCV(RandomForestClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+                rf = SklearnGridSearchCV(RandomForestClassifier(), tuned_parameters, cv=5, scoring='accuracy')
         else:
             if GPU:
-                rf = cm.RandomForestClassifier(n_estimators=n_estimators, min_samples_leaf=min_samples_leaf,
-                                               split_criterion=criterion)
+                rf = MyRandomForestClassifier(n_estimators=n_estimators, min_samples_leaf=min_samples_leaf,
+                                              split_criterion=criterion)
             else:
                 rf = RandomForestClassifier(n_estimators=n_estimators, min_samples_leaf=min_samples_leaf,
                                             criterion=criterion)
 
         # Fit the model
-
         rf.fit(train_X, train_y.values.ravel())
 
         if gridsearch and print_model_details:
@@ -307,18 +306,8 @@ class ClassificationAlgorithms:
         if gridsearch:
             rf = rf.best_estimator_
 
-        pred_prob_training_y = rf.predict_proba(train_X)
-        pred_prob_test_y = rf.predict_proba(test_X)
         pred_training_y = rf.predict(train_X)
         pred_test_y = rf.predict(test_X)
-        if GPU:
-            frame_prob_training_y = cd.DataFrame(pred_prob_training_y, columns=rf.classes_)
-            frame_prob_test_y = cd.DataFrame(pred_prob_test_y, columns=rf.classes_)
-            pred_training_y = pred_training_y.to_numpy()
-            pred_test_y = pred_test_y.to_numpy()
-        else:
-            frame_prob_training_y = pd.DataFrame(pred_prob_training_y, columns=rf.classes_)
-            frame_prob_test_y = pd.DataFrame(pred_prob_test_y, columns=rf.classes_)
 
         if print_model_details:
             ordered_indices = [i[0] for i in
@@ -329,7 +318,7 @@ class ClassificationAlgorithms:
                 print(' & ', end='')
                 print(rf.feature_importances_[ordered_indices[i]])
 
-        return pred_training_y, pred_test_y, frame_prob_training_y, frame_prob_test_y
+        return pred_training_y, pred_test_y
 
 
 class RegressionAlgorithms:
@@ -346,7 +335,7 @@ class RegressionAlgorithms:
             tuned_parameters = [{'hidden_layer_sizes': [(5,), (10,), (25,), (100,), (100, 5,), (100, 10,), ],
                                  'activation': ['identity'],
                                  'learning_rate': ['adaptive'], 'max_iter': [4000, 10000]}]
-            nn = GridSearchCV(MLPRegressor(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
+            nn = SklearnGridSearchCV(MLPRegressor(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
         else:
             # Create the model
             nn = MLPRegressor(hidden_layer_sizes=hidden_layer_sizes, activation=activation, max_iter=max_iter,
@@ -377,7 +366,7 @@ class RegressionAlgorithms:
         if gridsearch:
             tuned_parameters = [{'kernel': ['rbf', 'poly'], 'gamma': [1e-3, 1e-4],
                                  'C': [1, 10, 100]}]
-            svr = GridSearchCV(SVR(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
+            svr = SklearnGridSearchCV(SVR(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
         else:
             # Create the model
             svr = SVR(C=C, kernel='rbf', gamma=gamma)
@@ -407,7 +396,7 @@ class RegressionAlgorithms:
             # With the current parameters for max_iter and Python 3 packages convergence is not always reached, with increased iterations/tolerance often still fails to converge.
             tuned_parameters = [{'max_iter': [1000, 2000], 'tol': [1e-3, 1e-4],
                                  'C': [1, 10, 100]}]
-            svr = GridSearchCV(LinearSVR(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
+            svr = SklearnGridSearchCV(LinearSVR(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
         else:
             # Create the model
             svr = LinearSVR(C=C, tol=tol, max_iter=max_iter)
@@ -436,7 +425,7 @@ class RegressionAlgorithms:
         # Create the model
         if gridsearch:
             tuned_parameters = [{'n_neighbors': [1, 2, 5, 10]}]
-            knn = GridSearchCV(KNeighborsRegressor(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
+            knn = SklearnGridSearchCV(KNeighborsRegressor(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
         else:
             # Create the model
             knn = KNeighborsRegressor(n_neighbors=n_neighbors)
@@ -468,7 +457,7 @@ class RegressionAlgorithms:
         if gridsearch:
             tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
                                  'criterion': ['mse']}]
-            dtree = GridSearchCV(DecisionTreeRegressor(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
+            dtree = SklearnGridSearchCV(DecisionTreeRegressor(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
         else:
             # Create the model
             dtree = DecisionTreeRegressor(min_samples_leaf=min_samples_leaf, criterion=criterion)
@@ -515,7 +504,7 @@ class RegressionAlgorithms:
             tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
                                  'n_estimators': [10, 50, 100],
                                  'criterion': ['mse']}]
-            rf = GridSearchCV(RandomForestRegressor(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
+            rf = SklearnGridSearchCV(RandomForestRegressor(), tuned_parameters, cv=5, scoring='neg_mean_squared_error')
         else:
             # Create the model
             rf = RandomForestRegressor(n_estimators=n_estimators, min_samples_leaf=min_samples_leaf,

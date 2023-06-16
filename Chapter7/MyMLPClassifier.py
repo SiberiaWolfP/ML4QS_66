@@ -1,3 +1,4 @@
+from util.common import GPU
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -7,6 +8,10 @@ from sklearn.metrics import accuracy_score
 from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau, ExponentialLR
 import numpy as np
 import pandas as pd
+if GPU:
+    import cupy as cp
+    import cudf as cd
+
 
 # Define the MLP network
 class MLP(nn.Module):
@@ -88,7 +93,7 @@ class MyMLPClassifier(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y):
         X = self._to_tensor(X)
-        y = self._to_tensor(y, dtype=torch.long)
+        y = self._to_tensor(y)
         # X = torch.FloatTensor(X).to(self.device)
         # y = torch.LongTensor(y).to(self.device)
         n_samples, n_features = X.shape
@@ -169,7 +174,7 @@ class MyMLPClassifier(BaseEstimator, ClassifierMixin):
 
     def score(self, X, y):
         X = self._to_tensor(X)
-        y = self._to_tensor(y, dtype=torch.long)
+        y = self._to_tensor(y)
         y_pred = self.predict(X)
         return accuracy_score(y.cpu().numpy(), y_pred)
 
@@ -198,12 +203,17 @@ class MyMLPClassifier(BaseEstimator, ClassifierMixin):
             setattr(self, parameter, value)
         return self
 
-    def _to_tensor(self, X, dtype=torch.float):
-        if isinstance(X, pd.DataFrame):
-            X = X.values
-        if X.shape[1] == 1:
-            if dtype == torch.float:
-                X = X.flatten().astype(np.float32)
-            elif dtype == torch.long:
-                X = X.flatten().astype(np.int64)
-        return torch.tensor(X, dtype=dtype).to(self.device)
+    def _to_tensor(self, X):
+        # if isinstance(X, pd.DataFrame):
+        if isinstance(X, cd.DataFrame):
+            return torch.from_numpy(cp.asnumpy(X.values)).to(self.device)
+        elif isinstance(X, cp.ndarray):
+            return torch.from_numpy(cp.asnumpy(X.squeeze())).to(self.device)
+        elif isinstance(X, np.ndarray):
+            return torch.from_numpy(X.squeeze()).to(self.device)
+        # elif X.shape[1] == 1:
+        #     if dtype == torch.float:
+        #         X = X.flatten().astype(np.float32)
+        #     elif dtype == torch.int8:
+        #         X = X.flatten().astype(np.int32)
+        # return torch.tensor(X, dtype=dtype).to(self.device)

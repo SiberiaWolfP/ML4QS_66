@@ -16,7 +16,7 @@ window_size = 10
 features_df = pd.DataFrame()
 
 DATA_PATH = Path('./datasets/intermediate/')
-DATASET_FNAME = 'after_transform/ch3_after_pca.csv'
+DATASET_FNAME = 'ch3_after_pca.csv'
 RESULT_FNAME = 'chapter4_result_1.csv'
 
 NumAbs = NumericalAbstraction()
