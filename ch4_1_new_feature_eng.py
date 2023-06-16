@@ -23,7 +23,6 @@ RESULT_FNAME = 'chapter4_result.csv'
 NumAbs = NumericalAbstraction()
 
 dataset = pd.read_csv(DATA_PATH / DATASET_FNAME)
-print(dataset)
 
 periodic_predictor_cols = ['acc_z', 'acc_y', 'acc_x',
                            'gra_z', 'gra_y', 'gra_x',
