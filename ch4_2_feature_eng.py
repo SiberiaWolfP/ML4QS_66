@@ -37,6 +37,7 @@ def main():
     start_time = time.time()
     try:
         dataset = pd.read_csv(DATA_PATH / DATASET_FNAME, index_col=0)
+        print(dataset)
         dataset.index = pd.to_datetime(dataset.index, unit='ns')
         # dataset.set_index(dataset['time'], inplace=True)
         # dataset.index = pd.to_datetime(dataset.index)
@@ -48,7 +49,9 @@ def main():
     DataViz = VisualizeDataset(__file__)
 
     # Compute the number of milliseconds covered by an instance based on the first two rows
-    milliseconds_per_instance = (dataset.index[1] - dataset.index[0]).microseconds / 1000
+    # milliseconds_per_instance = (dataset.index[1] - dataset.index[0]).microseconds / 1000
+    milliseconds_per_instance = (dataset['time'].iloc[1] - dataset['time'].iloc[0]) / 1000000
+    # maybe it is better
 
     dataset = dataset.sort_index()
     # print(dataset.head())
