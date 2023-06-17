@@ -13,10 +13,10 @@ import scipy.stats as stats
 from scipy import fftpack
 from scipy.stats import skew, kurtosis
 
-if GPU is True:
-    import cupy as np
-else:
-    import numpy as np
+# if GPU is True:
+#     import cupy as np
+# else:
+import numpy as np
 
 
 # Class to abstract a history of numerical values we can use as an attribute.

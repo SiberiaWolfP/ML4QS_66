@@ -11,13 +11,11 @@ prepare = PrepareDatasetForLearning()
 N_FORWARD_SELECTION = 50
 dataset = pd.read_csv('datasets/intermediate/chapter5_result.csv')
 
-cols = dataset.columns[dataset.columns.str.contains('label')]
 cols = ['label_cycling', 'label_downstairs', 'label_onsubway',
-       'label_playing_phone', 'label_running', 'label_standing',
-       'label_upstairs', 'label_walking']
+        'label_playing_phone', 'label_running', 'label_standing',
+        'label_upstairs', 'label_walking']
 
 class_labels = []
-dataset[cols]
 # Loop over each row in the DataFrame
 for index, row in dataset[cols].iterrows():
     class_label = row.idxmax()
@@ -26,7 +24,7 @@ for index, row in dataset[cols].iterrows():
 # Add a new column 'class' to the DataFrame with the class labels
 dataset['class'] = class_labels
 
-
+dataset = dataset.drop('Unnamed: 0', axis=1)
 dataset = dataset.drop('time', axis=1)
 dataset = dataset.dropna()
 
