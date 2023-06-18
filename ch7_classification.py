@@ -123,19 +123,19 @@ selected_features_embedded = ['gra_y_min', 'gyr_x_diff_2_temp_std_ws_300', 'mag_
 
 # # First, let us consider the performance over a selection of features:
 
-# fs = FeatureSelectionClassification()
+fs = FeatureSelectionClassification()
 
-# print('Running feature selection based on %s variables...' % len(features_after_chapter_5))
-# features, ordered_features, ordered_scores = fs.forward_selection(N_FORWARD_SELECTION,
-#                                                                   train_X[features_after_chapter_5],
-#                                                                   test_X[features_after_chapter_5],
-#                                                                   train_y,
-#                                                                   test_y,
-#                                                                   gridsearch=False)
-# print('Feature selection done...')
+print('Running feature selection based on %s variables...' % len(features_after_chapter_5))
+features, ordered_features, ordered_scores = fs.forward_selection(N_FORWARD_SELECTION,
+                                                                  train_X[features_after_chapter_5],
+                                                                  test_X[features_after_chapter_5],
+                                                                  train_y,
+                                                                  test_y,
+                                                                  gridsearch=False)
+print('Feature selection done...')
 #
-# DataViz.plot_xy(x=[range(1, N_FORWARD_SELECTION + 1)], y=[ordered_scores],
-#                 xlabel='number of features', ylabel='accuracy')
+DataViz.plot_xy(x=[range(1, N_FORWARD_SELECTION + 1)], y=[ordered_scores],
+                xlabel='number of features', ylabel='accuracy')
 
 # based on python2 features, slightly different.
 # selected_features = ['acc_phone_y_freq_0.0_Hz_ws_40', 'press_phone_pressure_temp_mean_ws_120',
@@ -313,7 +313,7 @@ for i in range(0, len(possible_feature_sets)):
 for i in range(len(all_search_results)):
     all_search_results[i].to_csv('search_results_{}.csv'.format(algorithm_names[i]))
 
-DataViz.plot_performances_classification(['NN', 'RF', 'SVM', 'DT', 'NB'], feature_names, scores_over_all_algs)
+DataViz.plot_performances_classification(algorithm_names, feature_names, scores_over_all_algs)
 
 # # And we study two promising ones in more detail. First, let us consider the decision tree, which works best with the
 # # selected features.

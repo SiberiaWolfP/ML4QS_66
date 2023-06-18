@@ -101,7 +101,7 @@ class FeatureSelectionClassification:
 
                 # Determine the accuracy of a decision tree learner if we were to add
                 # the feature.
-                pred_y_train, pred_y_test, prob_training_y, prob_test_y = ca.decision_tree(
+                pred_y_train, pred_y_test, search_result = ca.decision_tree(
                     X_train[temp_selected_features],
                     y_train,
                     X_test[temp_selected_features],
