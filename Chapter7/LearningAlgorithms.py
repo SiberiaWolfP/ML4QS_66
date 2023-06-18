@@ -30,8 +30,22 @@ from sklearn.svm import SVC
 from sklearn.svm import LinearSVC
 from sklearn.svm import SVR
 from sklearn.svm import LinearSVR
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import make_scorer
 
 class ClassificationAlgorithms:
+
+    def __init__(self):
+        self.scoring = {'accuracy': make_scorer(accuracy_score),
+                        'precision_macro': make_scorer(precision_score, average='macro', zero_division=0),
+                        'recall_macro': make_scorer(recall_score, average='macro', zero_division=0),
+                        'f1_score_macro': make_scorer(f1_score, average='macro', zero_division=0),
+                        'precision_weighted': make_scorer(precision_score, average='weighted', zero_division=0),
+                        'recall_weighted': make_scorer(recall_score, average='weighted', zero_division=0),
+                        'f1_score_weighted': make_scorer(f1_score, average='weighted', zero_division=0)}
 
     # Apply a neural network for classification upon the training data (with the specified composition of hidden
     # layers and number of iterations), and use the created network to predict the outcome for both the test and
@@ -49,7 +63,9 @@ class ClassificationAlgorithms:
                                  'activation': ['relu', 'logistic'],
                                  'max_iter': [1000, 2000], 'alpha': [0.001, 0.01, 0.1, 1, 10]}]
             nn = SklearnGridSearchCV(MyMLPClassifier(early_stopping=True, learning_rate=learning_rate),
-                                     tuned_parameters, cv=5, scoring='accuracy', n_jobs=3, verbose=10)
+                                     tuned_parameters, cv=5,
+                                     scoring=self.scoring, n_jobs=2,
+                                     refit='accuracy')
         else:
             # Create the model
             # nn = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation, max_iter=max_iter,
@@ -95,12 +111,14 @@ class ClassificationAlgorithms:
                                            gridsearch=True, print_model_details=False):
         # Create the model
         if gridsearch:
-            tuned_parameters = [{'kernel': ['rbf', 'linear', 'poly', 'sigmoid'],
-                                 'gamma': ['scale', 'auto', 1e-3, 1e-4],
+            tuned_parameters = [{'kernel': ['rbf', 'poly', 'sigmoid'],
+                                 'gamma': [1e-1, 1e-2, 1e-3, 1e-4],
                                  'degree': [2, 3, 4, 5],
                                  'C': [1, 10, 100]}]
-            svm = SklearnGridSearchCV(SVC(probability=True), tuned_parameters, cv=5, scoring='accuracy',
-                                      n_jobs=-1, verbose=10)
+            svm = SklearnGridSearchCV(SVC(cache_size=8000), tuned_parameters, cv=5,
+                                      scoring=self.scoring,
+                                      refit='accuracy',
+                                      n_jobs=-1)
         else:
             svm = SVC(C=C, kernel=kernel, gamma=gamma, probability=True, cache_size=100)
 
@@ -221,8 +239,10 @@ class ClassificationAlgorithms:
                                  'min_samples_split': [2, 10, 50, 100, 200],
                                  'max_features': ['sqrt', 'log2', None],
                                  'max_leaf_nodes': [None, 2, 5, 10, 20, 50, 100]}]
-            dtree = SklearnGridSearchCV(DecisionTreeClassifier(), tuned_parameters, cv=5, scoring='accuracy',
-                                        n_jobs=-1, verbose=0)
+            dtree = SklearnGridSearchCV(DecisionTreeClassifier(), tuned_parameters, cv=5,
+                                        scoring=self.scoring,
+                                        refit='accuracy',
+                                        n_jobs=-1)
         else:
             dtree = DecisionTreeClassifier(min_samples_leaf=min_samples_leaf, criterion=criterion)
 
@@ -267,7 +287,9 @@ class ClassificationAlgorithms:
         # Create the model
         if gridsearch:
             tuned_parameters = [{'var_smoothing': np.logspace(0, -9, num=100)}]
-            nb = SklearnGridSearchCV(GaussianNB(), tuned_parameters, cv=5, scoring='accuracy', n_jobs=-1, verbose=0)
+            nb = SklearnGridSearchCV(GaussianNB(), tuned_parameters, cv=5,
+                                     scoring=self.scoring,
+                                     refit='accuracy', n_jobs=-1, verbose=0)
         else:
             nb = GaussianNB()
 
@@ -305,13 +327,14 @@ class ClassificationAlgorithms:
         if gridsearch:
             if GPU:
                 # split_criterion: 0 for gini, 1 for entropy
-                tuned_parameters = [{'min_samples_leaf': [2, 10, 50],
+                tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100],
                                      'n_estimators': [10, 50, 100, 200],
                                      'split_criterion': [0, 1],
                                      'max_depth': [10, 50, 100]}]
 
-                rf = SklearnGridSearchCV(cm.RandomForestClassifier(), tuned_parameters, cv=5, scoring='accuracy',
-                                         n_jobs=3, verbose=10)
+                rf = SklearnGridSearchCV(cm.RandomForestClassifier(), tuned_parameters, cv=5,
+                                         scoring=self.scoring, n_jobs=2,
+                                         refit='accuracy')
             else:
                 tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
                                      'n_estimators': [10, 50, 100],
