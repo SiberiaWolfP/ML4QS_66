@@ -23,12 +23,14 @@ from Chapter7.FeatureSelection import FeatureSelectionClassification
 from util import util
 from util.VisualizeDataset import VisualizeDataset
 from sklearn.preprocessing import LabelEncoder
+from datetime import datetime
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
 DATA_PATH = Path('./datasets/intermediate/')
 DATASET_FNAME = 'chapter5_result.csv'
 RESULT_FNAME = 'chapter7_classification_result.csv'
 EXPORT_TREE_PATH = Path('./figures/crowdsignals_ch7_classification/')
+SEARCH_RESULT_PATH = Path('./search_result/')
 
 # Next, we declare the parameters we'll use in the algorithms.
 N_FORWARD_SELECTION = 50
@@ -198,9 +200,9 @@ selected_features_embedded = ['gra_y_min', 'gyr_x_diff_2_temp_std_ws_300', 'mag_
 
 learner = ClassificationAlgorithms()
 eval = ClassificationEvaluation()
-possible_feature_sets = [basic_features, features_after_chapter_3, features_after_chapter_4, features_after_chapter_5,
+possible_feature_sets = [basic_features, features_after_chapter_3,
                          selected_features_filter, selected_features_wrapper, selected_features_embedded]
-feature_names = ['initial set', 'Chapter 3', 'Chapter 4', 'Chapter 5', 'Selected features (filter)',
+feature_names = ['initial set', 'Chapter 3', 'Selected features (filter)',
                  'Selected features (wrapper)', 'Selected features (embedded)']
 N_KCV_REPEATS = 1
 
@@ -244,10 +246,8 @@ for i in range(0, len(possible_feature_sets)):
         )
         performance_tr_nn += eval.accuracy(train_y, class_train_y)
         performance_te_nn += eval.accuracy(test_y, class_test_y)
-        search_result['round'] = repeat
-        search_result['algorithm'] = 'NN'
-        search_result['features'] = feature_names[i]
-        all_search_results[0] = pd.concat([all_search_results[0], search_result])
+        search_result.to_csv(SEARCH_RESULT_PATH / "NN_{}_{}.csv".format(feature_names[i],
+                                                                        datetime.now().strftime("%d-%H-%M-%S")))
         search_result = None
 
         print("Training RandomForest run {} / {}, feature set: {}... ".format(repeat, N_KCV_REPEATS, feature_names[i]))
@@ -256,10 +256,8 @@ for i in range(0, len(possible_feature_sets)):
         )
         performance_tr_rf += eval.accuracy(train_y_cuda, class_train_y)
         performance_te_rf += eval.accuracy(test_y_cuda, class_test_y)
-        search_result['round'] = repeat
-        search_result['algorithm'] = 'RF'
-        search_result['features'] = feature_names[i]
-        all_search_results[1] = pd.concat([all_search_results[1], search_result])
+        search_result.to_csv(SEARCH_RESULT_PATH / "RF_{}_{}.csv".format(feature_names[i],
+                                                                        datetime.now().strftime("%d-%H-%M-%S")))
         search_result = None
 
         print("Training SVM run {} / {}, feature set: {}... ".format(repeat, N_KCV_REPEATS, feature_names[i]))
@@ -268,10 +266,8 @@ for i in range(0, len(possible_feature_sets)):
         )
         performance_tr_svm += eval.accuracy(train_y, class_train_y)
         performance_te_svm += eval.accuracy(test_y, class_test_y)
-        search_result['round'] = repeat
-        search_result['algorithm'] = 'SVM'
-        search_result['features'] = feature_names[i]
-        all_search_results[2] = pd.concat([all_search_results[2], search_result])
+        search_result.to_csv(SEARCH_RESULT_PATH / "SVM_{}_{}.csv".format(feature_names[i],
+                                                                         datetime.now().strftime("%d-%H-%M-%S")))
         search_result = None
 
         print("Training Decision Tree run {} / {}, feature set: {}... ".format(repeat, N_KCV_REPEATS, feature_names[i]))
@@ -280,10 +276,8 @@ for i in range(0, len(possible_feature_sets)):
         )
         performance_tr_dt += eval.accuracy(train_y, class_train_y)
         performance_te_dt += eval.accuracy(test_y, class_test_y)
-        search_result['round'] = repeat
-        search_result['algorithm'] = 'DT'
-        search_result['features'] = feature_names[i]
-        all_search_results[3] = pd.concat([all_search_results[3], search_result])
+        search_result.to_csv(SEARCH_RESULT_PATH / "DT_{}_{}.csv".format(feature_names[i],
+                                                                        datetime.now().strftime("%d-%H-%M-%S")))
         search_result = None
 
         print("Training Naive Bayes run {} / {}, feature set: {}... ".format(repeat, N_KCV_REPEATS, feature_names[i]))
@@ -292,10 +286,8 @@ for i in range(0, len(possible_feature_sets)):
         )
         performance_tr_nb += eval.accuracy(train_y, class_train_y)
         performance_te_nb += eval.accuracy(test_y, class_test_y)
-        search_result['round'] = repeat
-        search_result['algorithm'] = 'NB'
-        search_result['features'] = feature_names[i]
-        all_search_results[4] = pd.concat([all_search_results[4], search_result])
+        search_result.to_csv(SEARCH_RESULT_PATH / "NB_{}_{}.csv".format(feature_names[i],
+                                                                        datetime.now().strftime("%d-%H-%M-%S")))
         search_result = None
 
     overall_performance_tr_nn = performance_tr_nn / N_KCV_REPEATS
