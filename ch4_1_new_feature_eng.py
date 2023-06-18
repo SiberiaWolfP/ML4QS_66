@@ -49,4 +49,4 @@ dataset = pd.concat([dataset, features_df], axis=1)
 
 dataset = NumAbs.compute_diff_shift_features_for_window(dataset, periodic_predictor_cols)
 
-dataset.to_csv(DATA_PATH / RESULT_FNAME)
+dataset.to_csv(DATA_PATH / RESULT_FNAME, index=False)

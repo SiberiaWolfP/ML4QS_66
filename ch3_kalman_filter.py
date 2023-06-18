@@ -45,5 +45,5 @@ new_dataframe.reset_index(drop=True)
 kalman_check_cols = new_dataframe.columns[new_dataframe.columns.str.contains('_kalman')]
 new_dataframe = del_cols(new_dataframe, kalman_check_cols)
 
-new_dataframe.to_csv(result_folder + result_file_name)
+new_dataframe.to_csv(result_folder + result_file_name, index=False)
 print('end')

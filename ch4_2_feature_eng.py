@@ -130,7 +130,7 @@ def main():
 
         print(len(dataset))
 
-        dataset.to_csv(DATA_PATH / RESULT_FNAME)
+        dataset.to_csv(DATA_PATH / RESULT_FNAME, index=False)
 
         # DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'mag_x', 'mic_dBFS',
         #                                'ori_qx', 'gra_x', 'label'],

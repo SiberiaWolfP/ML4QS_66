@@ -42,7 +42,7 @@ def main():
         new_dataset = LowPass.low_pass_filter(copy.deepcopy(
             dataset), 'Orientation qz', fs, cutoff, order=10)
 
-        new_dataset.to_csv('../../datasets/intermediate/after_transform/result.csv')
+        new_dataset.to_csv('../../datasets/intermediate/after_transform/result.csv', index=False)
 
     elif FLAGS.mode == 'PCA':
 
@@ -68,7 +68,7 @@ def main():
         print(dataset)
 
 
-        dataset.to_csv(result_folder + 'result.csv')
+        dataset.to_csv(result_folder + 'result.csv', index=False)
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-# This class performs a Fourier transformation on the data to find frequencies that occur
+# This 'class performs a Fourier transformation on the data to find frequencies that occur
 # often and filter noise.
 class FourierTransformation:
 

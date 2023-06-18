@@ -1,10 +1,9 @@
-from util.common import GPU
-import time
 import pandas as pd
-from Chapter7.PrepareDatasetForLearning import PrepareDatasetForLearning
-from Chapter7.FeatureSelection import FeatureSelectionClassification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+
+from Chapter7.FeatureSelection import FeatureSelectionClassification
+from Chapter7.PrepareDatasetForLearning import PrepareDatasetForLearning
 
 prepare = PrepareDatasetForLearning()
 
@@ -32,6 +31,8 @@ for col in dataset.columns[dataset.columns.str.contains('label')]:
     dataset = dataset.drop(col, axis=1)
 for col in dataset.columns[dataset.columns.str.contains('pca')]:
     dataset = dataset.drop(col, axis=1)
+
+dataset.to_csv('datasets/intermediate/chapter5_result_class.csv')
 
 X = dataset.drop('class', axis=1)
 y = dataset['class']

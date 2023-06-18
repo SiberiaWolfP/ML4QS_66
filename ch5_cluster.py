@@ -135,7 +135,7 @@ def main():
         util.print_latex_statistics_clusters(dataset, 'cluster', cols_to_cluster, 'label')
         del dataset['silhouette']
 
-        dataset.to_csv(DATA_PATH / RESULT_FNAME)
+        dataset.to_csv(DATA_PATH / RESULT_FNAME, index=False)
 
 
 if __name__ == '__main__':

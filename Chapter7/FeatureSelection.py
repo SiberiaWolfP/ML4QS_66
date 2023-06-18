@@ -45,6 +45,35 @@ class FeatureSelectionClassification:
 
         return selected_features.tolist()
 
+    # Filter method.
+    def filter_method_with_scores(self, max_features, X_train, y_train):
+        selector = SelectKBest(f_classif, k=max_features)
+        selector.fit(X_train, y_train)
+        selected_features = X_train.columns[selector.get_support(indices=True)].tolist()
+        scores = selector.scores_[selector.get_support(indices=True)].tolist()
+        return selected_features, scores
+
+    # Wrapper method.
+    def wrapper_method_with_scores(self, max_features, X_train, y_train):
+        estimator = DecisionTreeClassifier()
+        selector = RFE(estimator, n_features_to_select=max_features, step=1)
+        selector.fit(X_train, y_train)
+        selected_features = X_train.columns[selector.get_support(indices=True)].tolist()
+        scores = [1] * len(selected_features)  # In wrapper method, all features are considered equally important
+        return selected_features, scores
+
+    # Embedded method.
+    def embedded_method_with_scores(self, max_features, X_train, y_train):
+        model = xgb.XGBClassifier(use_label_encoder=False, eval_metric='mlogloss')
+        model.fit(X_train, y_train)
+
+        importance = model.feature_importances_
+        feature_importances = pd.Series(importance, index=X_train.columns)
+        selected_features = feature_importances.nlargest(max_features).index.tolist()
+        scores = feature_importances.nlargest(max_features).tolist()
+
+        return selected_features, scores
+
     # Forward selection for classification which selects a pre-defined number of features (max_features)
     # that show the best accuracy. We assume a decision tree learning for this purpose, but
     # this can easily be changed. It return the best features.
