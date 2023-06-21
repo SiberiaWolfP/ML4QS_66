@@ -5,9 +5,9 @@ import matplotlib as mpl
 import seaborn as sns
 
 dataset = pd.read_csv('/Users/young/Downloads/ml4qs_codes/ML4QS_66/datasets/intermediate/after_filter/raw_100ms.csv')
-plt.figure(figsize=(14, 5))
+plt.figure(figsize=(14, 8))
 cols = ['Accelerometer z', 'Accelerometer y', 'Accelerometer x','Accelerometer z kalman', 'Accelerometer y kalman', 'Accelerometer x kalman']
-
+mpl.rcParams['font.size'] = 26
 print(len(dataset))
 outlier_cols = [col for col in dataset.columns if 'outlier' in col]
 print(outlier_cols)

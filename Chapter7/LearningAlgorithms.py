@@ -1,5 +1,3 @@
-import cupy
-
 from util.common import GPU
 from sklearn.neural_network import MLPRegressor
 from sklearn.neighbors import KNeighborsClassifier

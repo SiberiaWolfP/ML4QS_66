@@ -24,7 +24,7 @@ for index, row in dataset[cols].iterrows():
 dataset['class'] = class_labels
 
 dataset = dataset.drop('Unnamed: 0', axis=1)
-dataset = dataset.drop('time', axis=1)
+# dataset = dataset.drop('time', axis=1)
 dataset = dataset.dropna()
 
 for col in dataset.columns[dataset.columns.str.contains('label')]:
@@ -32,7 +32,7 @@ for col in dataset.columns[dataset.columns.str.contains('label')]:
 for col in dataset.columns[dataset.columns.str.contains('pca')]:
     dataset = dataset.drop(col, axis=1)
 
-dataset.to_csv('datasets/intermediate/chapter5_result_class.csv')
+dataset.to_csv('datasets/intermediate/chapter5_result_class_time.csv', index=False)
 
 X = dataset.drop('class', axis=1)
 y = dataset['class']
