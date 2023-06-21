@@ -80,10 +80,10 @@ print(dataset.columns)
 X_train, X_test, y_train, y_test = split_dataset_by_time_and_group(dataset=dataset, timestamp_col='time', group_col='class',target_col='class', test_size=0.2)
 
 X_train_feature = feature_eng_new(X_train)
-y_train_feature = feature_eng_new(y_train)
+x_test_feature = feature_eng_new(X_test)
 
 train_data = pd.concat([X_train_feature, y_train], axis=1)
-test_data = pd.concat([y_train_feature, y_test], axis=1)
-
 train_data.to_csv(DATA_PATH / result_train)
+
+test_data = pd.concat([x_test_feature, y_test], axis=1)
 test_data.to_csv(DATA_PATH / result_test)

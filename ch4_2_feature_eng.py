@@ -19,8 +19,12 @@ from Chapter4.TextAbstraction import TextAbstraction
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
 DATA_PATH = Path('./datasets/intermediate/')
 DATASET_FNAME = 'chapter4_result_1.csv'
+dataset_train_file = 'chapter4_result_1_train.csv'
+dataset_test_file = 'chapter4_result_1_test.csv'
 # DATASET_FNAME = 'after_impute_missing_values/ch3_2_after_missing_values_imputation.csv'
 RESULT_FNAME = 'chapter4_result.csv'
+result_train_file = 'chapter4_result_train.csv'
+result_test_file = 'chapter4_test_train.csv'
 
 
 def print_flags():
@@ -36,9 +40,19 @@ def main():
 
     start_time = time.time()
     try:
-        dataset = pd.read_csv(DATA_PATH / DATASET_FNAME, index_col=0)
-        print(dataset)
-        dataset.index = pd.to_datetime(dataset.index, unit='ns')
+        # dataset = pd.read_csv(DATA_PATH / DATASET_FNAME, index_col=0)
+        dataset_train = pd.read_csv(DATA_PATH / dataset_train_file, index_col=0)
+        dataset_test = pd.read_csv(DATA_PATH / dataset_test_file, index_col=0)
+
+        dataset_train.index = pd.to_datetime(dataset_train.index, unit='ns')
+        dataset_test.index = pd.to_datetime(dataset_test.index, unit='ns')
+
+        dataset_train_y = dataset_train['class']
+        dataset_train = dataset_train.drop('class', axis=1)
+
+        dataset_test_y = dataset_test['class']
+        dataset_test = dataset_test.drop('class', axis=1)
+
         # dataset.set_index(dataset['time'], inplace=True)
         # dataset.index = pd.to_datetime(dataset.index)
     except IOError as e:
@@ -50,10 +64,13 @@ def main():
 
     # Compute the number of milliseconds covered by an instance based on the first two rows
     # milliseconds_per_instance = (dataset.index[1] - dataset.index[0]).microseconds / 1000
-    milliseconds_per_instance = (dataset['time'].iloc[1] - dataset['time'].iloc[0]) / 1000000
+
+    # Both the training and test sets have the same time interval
+    milliseconds_per_instance = (dataset_train['time'].iloc[1] - dataset_train['time'].iloc[0]) / 1000000
     # maybe it is better
 
-    dataset = dataset.sort_index()
+    dataset_train = dataset_train.sort_index()
+    dataset_test = dataset_test.sort_index()
     # print(dataset.head())
 
     NumAbs = NumericalAbstraction()
@@ -88,15 +105,20 @@ def main():
         #                      ['like', 'like', 'like', 'like'], ['line', 'line', 'line', 'points'])
         print("--- %s seconds ---" % (time.time() - start_time))
 
+    # only this is modified, so use this one
     if FLAGS.mode == 'final':
         ws = int(float(0.5 * 60000) / milliseconds_per_instance)
         fs = float(1000) / milliseconds_per_instance
 
-        selected_predictor_cols = [c for c in dataset.columns if not 'label' in c]
+        selected_predictor_cols = [c for c in dataset_train.columns if not 'label' in c]
         print(selected_predictor_cols)
 
-        dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'mean')
-        dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'std')
+        dataset_train = NumAbs.abstract_numerical(dataset_train, selected_predictor_cols, ws, 'mean')
+        dataset_train = NumAbs.abstract_numerical(dataset_train, selected_predictor_cols, ws, 'std')
+
+
+        dataset_test = NumAbs.abstract_numerical(dataset_test, selected_predictor_cols, ws, 'mean')
+        dataset_test = NumAbs.abstract_numerical(dataset_test, selected_predictor_cols, ws, 'std')
         # TODO: Add your own aggregation methods here
 
         # TODO: modify the columns to plot
@@ -107,7 +129,9 @@ def main():
 
         CatAbs = CategoricalAbstraction()
 
-        dataset = CatAbs.abstract_categorical(dataset, ['label'], ['like'], 0.03,
+        dataset_train = CatAbs.abstract_categorical(dataset_train, ['label'], ['like'], 0.03,
+                                              int(float(5 * 60000) / milliseconds_per_instance), 2)
+        dataset_test = CatAbs.abstract_categorical(dataset_test, ['label'], ['like'], 0.03,
                                               int(float(5 * 60000) / milliseconds_per_instance), 2)
 
         periodic_predictor_cols = ['acc_z', 'acc_y', 'acc_x',
@@ -117,25 +141,26 @@ def main():
                                    'ori_qz', 'ori_qy', 'ori_qx',
                                    'ori_qw']
 
-        dataset = FreqAbs.abstract_frequency(copy.deepcopy(dataset), periodic_predictor_cols,
+        dataset_train = FreqAbs.abstract_frequency(copy.deepcopy(dataset_train), periodic_predictor_cols,
                                              int(float(10000) / milliseconds_per_instance), fs)
-
-        # Now we only take a certain percentage of overlap in the windows, otherwise our training examples will be
-        # too much alike.
+        dataset_test = FreqAbs.abstract_frequency(copy.deepcopy(dataset_test), periodic_predictor_cols,
+                                             int(float(10000) / milliseconds_per_instance), fs)
 
         # The percentage of overlap we allow
         window_overlap = 0.9
         skip_points = int((1 - window_overlap) * ws)
-        dataset = dataset.iloc[::skip_points, :]
+
+        dataset_train = dataset_train.iloc[::skip_points, :]
+        dataset_test = dataset_test.iloc[::skip_points, :]
 
         print(len(dataset))
 
-        dataset.to_csv(DATA_PATH / RESULT_FNAME, index=False)
+        dataset_train = pd.concat([dataset_train, dataset_train_y], axis=1)
+        dataset_test = pd.concat([dataset_test, dataset_test_y], axis=1)
 
-        # DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'mag_x', 'mic_dBFS',
-        #                                'ori_qx', 'gra_x', 'label'],
-        #                      ['like', 'like', 'like', 'like', 'like', 'like', 'like'],
-        #                      ['line', 'line', 'line', 'line', 'line', 'line', 'points'])
+        dataset_train.to_csv(DATA_PATH / result_train_file, index=False)
+        dataset_test.to_csv(DATA_PATH / result_test_file, index=False)
+
         print("--- %s seconds ---" % (time.time() - start_time))
 
 
