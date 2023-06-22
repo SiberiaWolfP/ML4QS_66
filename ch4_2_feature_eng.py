@@ -24,7 +24,7 @@ dataset_test_file = 'chapter4_result_1_test.csv'
 # DATASET_FNAME = 'after_impute_missing_values/ch3_2_after_missing_values_imputation.csv'
 RESULT_FNAME = 'chapter4_result.csv'
 result_train_file = 'chapter4_result_train.csv'
-result_test_file = 'chapter4_test_train.csv'
+result_test_file = 'chapter4_result_test.csv'
 
 
 def print_flags():
@@ -41,11 +41,14 @@ def main():
     start_time = time.time()
     try:
         # dataset = pd.read_csv(DATA_PATH / DATASET_FNAME, index_col=0)
-        dataset_train = pd.read_csv(DATA_PATH / dataset_train_file, index_col=0)
-        dataset_test = pd.read_csv(DATA_PATH / dataset_test_file, index_col=0)
+        dataset_train = pd.read_csv(DATA_PATH / dataset_train_file)
+        dataset_test = pd.read_csv(DATA_PATH / dataset_test_file)
 
         dataset_train.index = pd.to_datetime(dataset_train.index, unit='ns')
         dataset_test.index = pd.to_datetime(dataset_test.index, unit='ns')
+
+
+        # 其实完全没必要分开
 
         dataset_train_y = dataset_train['class']
         dataset_train = dataset_train.drop('class', axis=1)
@@ -64,7 +67,7 @@ def main():
 
     # Compute the number of milliseconds covered by an instance based on the first two rows
     # milliseconds_per_instance = (dataset.index[1] - dataset.index[0]).microseconds / 1000
-
+    print(dataset_train.columns)
     # Both the training and test sets have the same time interval
     milliseconds_per_instance = (dataset_train['time'].iloc[1] - dataset_train['time'].iloc[0]) / 1000000
     # maybe it is better
@@ -141,22 +144,33 @@ def main():
                                    'ori_qz', 'ori_qy', 'ori_qx',
                                    'ori_qw']
 
+        dataset_train.to_csv(DATA_PATH / 'train_before_abstract_frequency.csv', index=False)
+        dataset_test.to_csv(DATA_PATH / 'test_before_abstract_frequency.csv', index=False)
+
         dataset_train = FreqAbs.abstract_frequency(copy.deepcopy(dataset_train), periodic_predictor_cols,
                                              int(float(10000) / milliseconds_per_instance), fs)
+
+        dataset_train.to_csv(DATA_PATH / 'result_train_file_no_overlap_drop.csv', index=False)
+
         dataset_test = FreqAbs.abstract_frequency(copy.deepcopy(dataset_test), periodic_predictor_cols,
                                              int(float(10000) / milliseconds_per_instance), fs)
+
+        dataset_test.to_csv(DATA_PATH / 'result_test_file_no_overlap_drop.csv', index=False)
+
+        dataset_train = pd.concat([dataset_train, dataset_train_y], axis=1)
+        dataset_test = pd.concat([dataset_test, dataset_test_y], axis=1)
+
+        dataset_train.to_csv(DATA_PATH / 'chapter4_result_train_full.csv', index=False)
+        dataset_test.to_csv(DATA_PATH / 'chapter4_result_test_full.csv', index=False)
 
         # The percentage of overlap we allow
         window_overlap = 0.9
         skip_points = int((1 - window_overlap) * ws)
 
+
         dataset_train = dataset_train.iloc[::skip_points, :]
         dataset_test = dataset_test.iloc[::skip_points, :]
 
-        print(len(dataset))
-
-        dataset_train = pd.concat([dataset_train, dataset_train_y], axis=1)
-        dataset_test = pd.concat([dataset_test, dataset_test_y], axis=1)
 
         dataset_train.to_csv(DATA_PATH / result_train_file, index=False)
         dataset_test.to_csv(DATA_PATH / result_test_file, index=False)
