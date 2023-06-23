@@ -52,7 +52,9 @@ model.compile(
 
 model.summary()
 
-history = model.fit(x_train, y_train, epochs=num_epochs, batch_size=batch_size, validation_data=(x_test, y_test))
+print('start')
+history = model.fit(x_train, y_train, epochs=num_epochs, batch_size=batch_size, validation_data=(x_test, y_test), verbose=1)
+print('end')
 
 test_loss, test_acc = model.evaluate(x_test, y_test)
 
